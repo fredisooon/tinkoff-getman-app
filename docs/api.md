@@ -14,6 +14,7 @@ Current API version is `0.0.0-dev.1`.
 * All APIs are accessible according to [API URL Semantic](#url-semantic).
 
 ### URL Semantic
+----
 
 API endpoints are accessible via following forms:
 
@@ -28,11 +29,13 @@ Where:
 * `<endpoint>` is endpoint path.
 
 ### Token header
+----
 
 Some APIs are must be private and therefore requires token.
 Token is supplied via `HTTP` header `X-API-Token`.
 
 ### Schema version
+----
 
 Because schema may change in future, server **must** keep track of client's
 schema version.
@@ -51,6 +54,7 @@ If server's schema is not compatible with user's server must respond with
 ## Objects
 
 ### `ID`
+----
 
 ID is an object that contains relatively unique object and parent relatively
 unique ID. Together they form globally unique identity.
@@ -71,6 +75,7 @@ Where:
 For example for [`Request`](#request) parent ID is [`Workspace`](#workspace) ID.
 
 ### `Request`
+----
 
 Request is an object that abstracts single request and it's parameters.
 
@@ -105,6 +110,7 @@ Where:
   * **Must** be `null` for unsupported methods (e.g. `GET` or `HEAD`).
 
 ### `Headers`
+----
 
 Headers is an object that describes [Request](#request)'s HTTP headers part.
 
@@ -148,6 +154,7 @@ This example corresponds to the following query:
 ```
 
 ### `Payload`
+----
 
 Payload is an object that describes [Request](#request)'s HTTP payload part.
 
@@ -175,6 +182,7 @@ Where:
 > request streaming.
 
 ### `Workspace`
+----
 
 Workspace is an object that holds multiple [`Request`](#request) objects and
 sub-workspaces, allowing for easy objects grouping.
@@ -200,6 +208,7 @@ Where:
   workspace.
 
 #### Special workspaces
+----
 
 There are exists some predefined virtual workspaces with different purposes.
 Such workspaces have negative IDs (with exception of
@@ -210,6 +219,7 @@ must respond with corresponding error if such attempt is made.
 It's still possible to move objects in and out of such workspaces.
 
 ##### Root Workspace
+----
 
 Root workspace is default workspace that is used as placeholder parent
 workspace.
@@ -223,6 +233,7 @@ Root workspace can host **only** other workspaces. It's an error to place
 [Request](#request) within root workspace.
 
 ##### Recycle Bin
+----
 
 Recycle Bin is a special predefined workspace that is used to temporarily store
 "recycled" objects. Such objects are permanently deleted after some time
@@ -268,8 +279,10 @@ objects.
     [`507 Insufficient Storage`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/507).
 
 ### Request
+----
 
 #### `GET` `/request/<id>`
+----
 
 Retrieve existing [`Request`](#request) object from the server.
 
@@ -282,6 +295,7 @@ Retrieve existing [`Request`](#request) object from the server.
 * [`Request`](#request) - requested object.
 
 #### `PUT` `/request/<id>`
+----
 
 Partially update existing [`Request`](#request) object.
 
@@ -298,6 +312,7 @@ Partially update existing [`Request`](#request) object.
 * [`Request`](#request) - updated object.
 
 #### `POST` `/request`
+----
 
 Creates new [`Request`](#request) object and stores it.
 
@@ -322,8 +337,8 @@ Creates new [`Request`](#request) object and stores it.
   [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)
   if such attempt is made.
 
-
 #### `DELETE` `/request/<id>`
+----
 
 Deletes existing [`Request`](#request) object.
 
@@ -336,6 +351,7 @@ Deletes existing [`Request`](#request) object.
 * `bool` - whether object was deleted or not.
 
 #### `POST` `/request/<id>/move`
+----
 
 Moves existing [`Request`](#request) object to the other
 [`Workspace`](#workspace).
@@ -361,8 +377,10 @@ Moves existing [`Request`](#request) object to the other
   if such attempt is made.
 
 ### Workspace
+----
 
 #### `GET` `/workspace/<id>`
+----
 
 Retrieve existing [`Workspace`](#workspace) object from the server.
 
@@ -375,6 +393,7 @@ Retrieve existing [`Workspace`](#workspace) object from the server.
 * [`Workspace`](#workspace) - requested object.
 
 #### `PUT` `/workspace/<id>`
+----
 
 Partially update existing [`Workspace`](#workspace) object.
 
@@ -395,6 +414,7 @@ methods.
 * [`Workspace`](#workspace) - updated object.
 
 #### `POST` `/workspace`
+----
 
 Creates new [`Workspace`](#workspace) object and stores it.
 
@@ -413,6 +433,7 @@ Creates new [`Workspace`](#workspace) object and stores it.
 * [`ID`](#id) object - ID of created object.
 
 #### `DELETE` `/workspace/<id>`
+----
 
 Deletes existing [`Workspace`](#workspace) object.
 
@@ -438,6 +459,7 @@ Deletes existing [`Workspace`](#workspace) object.
 
 
 #### `POST` `/workspace/<id>/move`
+----
 
 Moves existing [`Workspace`](#workspace) object to the other
 [`Workspace`](#workspace).
@@ -452,8 +474,10 @@ Moves existing [`Workspace`](#workspace) object to the other
   * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
 
 ### Mass move
+----
 
 #### `POST` `/move`
+----
 
 Mass move objects to target destinations. This method allows simultaneous bulk
 movement of different objects to different destinations.
