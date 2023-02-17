@@ -130,6 +130,7 @@ Example:
 ```
 
 ### `Query`
+----
 
 Query is an object that describes [Request](#request)'s URL query part.
 
