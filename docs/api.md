@@ -50,6 +50,26 @@ If server's schema is not compatible with user's server must respond with
 
 ## Objects
 
+### `ID`
+
+ID is an object that contains relatively unique object and parent relatively
+unique ID. Together they form globally unique identity.
+
+Example:
+```json5
+{
+	"id": 1,
+	"parent": null
+}
+```
+
+Where:
+
+* `id` is relatively unique local ID of the object.
+* `parent` is relatively unique local ID of the parent object or `null`.
+
+For example for [`Request`](#request) parent ID is [`Workspace`](#workspace) ID.
+
 ### `Request`
 
 Request is an object that abstracts single request and it's parameters.
@@ -153,3 +173,113 @@ Where:
 
 > Editor note: in future versions there maybe more types of payloads, e.g.
 > request streaming.
+
+### `Workspace`
+
+> Editor node: not finished.
+
+## Endpoints
+
+URLs are corresponds to `endpoint` in  [URL semantic](#url-semantic).
+
+Some properties of bodies can be explicitly set to `null`, therefore server
+must distinguish between **omitted** property and property with
+**`null` value**.
+
+**General exceptions**:
+
+* If server cannot recognize endpoint it must respond with
+   [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
+* If request is missing some required parameters server must respond with 
+  [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400).
+* If server recognize endpoint, but requested method is not supported server
+  must respond with
+  [405 Method Not Allowed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405).
+* For `GET`, `PUT` and `DELETE` requests:
+  * If there is no such object server must respond with
+    [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
+* For `POST` and `PUT` requests:
+  * If server cannot recognize body or body is not conform to specs server must
+    respond with 
+    [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400).
+  * If server exhausted available storage quota for the data it must respond
+    with
+    [`507 Insufficient Storage`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/507).
+
+### Request
+
+#### `GET` `/request/<id>`
+
+Retrieve existing [`Request`](#request) object from server.
+
+**URI parameters**:
+
+* `id` - ID of the requested [`Request`](#request) object.
+
+**Returns**:
+
+* [`Request`](#request) - requested object.
+
+**Exceptions**:
+
+#### `PUT` `/request/<id>`
+
+Partially update existing [`Request`](#request) object.
+
+**URI parameters**:
+
+* `id` - ID of the [`Request`](#request) object to update.
+
+**Body**:
+
+* [`Request`](#request)-like object with some properties **omitted**.
+
+**Returns**:
+
+* [`Request`](#request) - updated object.
+
+#### `POST` `/request`
+
+Creates new [`Request`](#request) object and stores it.
+
+**Query parameters**:
+
+* `workspace` is `int` ID of [`Workspace`](#workspace).
+
+**Body**:
+
+* [`Request`](#request) object.
+
+**Returns**:
+
+* [`ID`](#id) object - ID of created object.
+
+#### `DELETE` `/request/<id>`
+
+Deletes existing [`Request`](#request) object.
+
+**URI parameters**:
+
+* `id` - ID of the [`Request`](#request) object to delete.
+
+**Returns**:
+
+* `bool` - whether object was deleted or not.
+
+#### `POST` `/request/<id>/move`
+
+Moves existing [`Request`](#request) object to the other
+[`Workspace`](#workspace).
+
+**URI parameters**:
+
+* `id` - ID of the [`Request`](#request) object to move.
+
+**Body**:
+
+* `Object` where:
+  * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
+
+### Workspace
+
+> Editor node: not finished.
