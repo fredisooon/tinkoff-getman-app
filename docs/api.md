@@ -176,7 +176,59 @@ Where:
 
 ### `Workspace`
 
-> Editor node: not finished.
+Workspace is an object that holds multiple [`Request`](#request) objects and
+sub-workspaces, allowing for easy objects grouping.
+
+Example:
+
+```json5
+{
+	"name": "Workspace name",
+	"description": "Workspace description",
+	"requests": [], // Array<Request>
+	"workspaces:": [] // Array<Workspace>
+}
+```
+
+Where:
+
+* `name` is a workspace name.
+* `description` is a workspace description.
+* `requests` is an `Array` of [`Request`](#request) objects within this
+  workspace.
+* `workspaces` is an `Array` of [`Workspace`](#workspace) objects within this
+  workspace.
+
+#### Special workspaces
+
+There are exists some predefined virtual workspaces with different purposes.
+Such workspaces have negative IDs (with exception of
+[Root Workspace](#root-workspace)).
+
+It's **impossible to modify or delete** special workspaces attributes, server
+must respond with corresponding error if such attempt is made.
+It's still possible to move objects in and out of such workspaces.
+
+##### Root Workspace
+
+Root workspace is default workspace that is used as placeholder parent
+workspace.
+
+Root workspace have ID of **`0`**.
+
+Root workspace also is the only technically recursive workspace (because it
+have parent ID `0`, which is itself).
+
+Root workspace can host **only** other workspaces. It's an error to place
+[Request](#request) within root workspace.
+
+##### Recycle Bin
+
+Recycle Bin is a special predefined workspace that is used to temporarily store
+"recycled" objects. Such objects are permanently deleted after some time
+(server defined).
+
+Recycle Bin workspace have ID of **`-100`**.
 
 ## Endpoints
 
@@ -185,6 +237,15 @@ URLs are corresponds to `endpoint` in  [URL semantic](#url-semantic).
 Some properties of bodies can be explicitly set to `null`, therefore server
 must distinguish between **omitted** property and property with
 **`null` value**.
+
+Schema allows moving objects to [Recycle Bin](#recycle-bin)'s subworkspaces,
+but there could be condition when target workspace could be deleted while moving
+objects.
+In such situation it's server responsibility to fix this by deleting now orphan
+objects.
+
+> Editor note: it's good idea to implement deletion locks and queue to prevent
+> this.
 
 **General exceptions**:
 
@@ -210,7 +271,7 @@ must distinguish between **omitted** property and property with
 
 #### `GET` `/request/<id>`
 
-Retrieve existing [`Request`](#request) object from server.
+Retrieve existing [`Request`](#request) object from the server.
 
 **URI parameters**:
 
@@ -219,8 +280,6 @@ Retrieve existing [`Request`](#request) object from server.
 **Returns**:
 
 * [`Request`](#request) - requested object.
-
-**Exceptions**:
 
 #### `PUT` `/request/<id>`
 
@@ -244,7 +303,8 @@ Creates new [`Request`](#request) object and stores it.
 
 **Query parameters**:
 
-* `workspace` is `int` ID of [`Workspace`](#workspace).
+* `workspace` is `int` ID of the [`Workspace`](#workspace) to place this object
+  to.
 
 **Body**:
 
@@ -253,6 +313,15 @@ Creates new [`Request`](#request) object and stores it.
 **Returns**:
 
 * [`ID`](#id) object - ID of created object.
+
+**Exceptions**:
+
+* [`Request`](#request) cannot be created within
+  [Root Workspace](#root-workspace) or [Recycle Bin](#recycle-bin), server
+  must respond with
+  [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)
+  if such attempt is made.
+
 
 #### `DELETE` `/request/<id>`
 
@@ -280,6 +349,161 @@ Moves existing [`Request`](#request) object to the other
 * `Object` where:
   * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
 
+**Returns**:
+
+* `bool` - whether object was moved or not.
+
+**Exceptions**:
+
+* [`Request`](#request) cannot be moved to
+  [Root Workspace](#root-workspace), server must respond with
+  [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)
+  if such attempt is made.
+
 ### Workspace
 
-> Editor node: not finished.
+#### `GET` `/workspace/<id>`
+
+Retrieve existing [`Workspace`](#workspace) object from the server.
+
+**URI parameters**:
+
+* `id` - ID of the requested [`Workspace`](#workspace) object.
+
+**Returns**:
+
+* [`Workspace`](#workspace) - requested object.
+
+#### `PUT` `/workspace/<id>`
+
+Partially update existing [`Workspace`](#workspace) object.
+
+**Note**: this method cannot edit children of workspace. It is done via move
+methods.
+
+**URI parameters**:
+
+* `id` - ID of the [`Workspace`](#workspace) object to update.
+
+**Body**:
+
+* [`Workspace`](#workspace)-like object with some properties **omitted**,
+  excluding `requests` and `workspaces` properties.
+
+**Returns**:
+
+* [`Workspace`](#workspace) - updated object.
+
+#### `POST` `/workspace`
+
+Creates new [`Workspace`](#workspace) object and stores it.
+
+**Query parameters**:
+
+* (optional, default) `workspace` is `int` ID of the [`Workspace`](#workspace)
+  to place this object to.
+  * Default value is `0` ([Root Workspace](#root-workspace)).
+
+**Body**:
+
+* [`Workspace`](#workspace) object.
+
+**Returns**:
+
+* [`ID`](#id) object - ID of created object.
+
+#### `DELETE` `/workspace/<id>`
+
+Deletes existing [`Workspace`](#workspace) object.
+
+**Query parameters**:
+
+* (optional, defualt) `cascade` - Cascade deletion of children objects.
+  * Default value is `false`.
+
+**URI parameters**:
+
+* `id` - ID of the [`Workspace`](#workspace) object to delete.
+
+**Returns**:
+
+* `bool` - whether object was deleted or not.
+
+**Exceptions**:
+
+* [`Workspace`](#workspace) cannot be deleted with `cascade` set to `false` if
+  it have children elements, server must respond with
+  [`405 Method Not Allowed`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405)
+  if such attempt is made.
+
+
+#### `POST` `/workspace/<id>/move`
+
+Moves existing [`Workspace`](#workspace) object to the other
+[`Workspace`](#workspace).
+
+**URI parameters**:
+
+* `id` - ID of the [`Workspace`](#workspace) object to move.
+
+**Body**:
+
+* `Object` where:
+  * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
+
+### Mass move
+
+#### `POST` `/move`
+
+Mass move objects to target destinations. This method allows simultaneous bulk
+movement of different objects to different destinations.
+
+**Note**: If the same object is requested to move to different destinations, it
+must be moved to the last defined destination. This means that from user
+perspective it will look like object was moved multiple times according to
+the order user requested.
+
+**Note**: If some object is failed to move, server must revert **all** movement
+operations made with this request. This ensures that either all operations are
+competed successfully or none of them.
+
+**Body**:
+
+* `Array` of `Object`s where
+  * `workspace` is `int` ID of the [`Workspace`](#workspace) to place this
+    group of objects to.
+  * (optional) `workspaces` is an `Array` of `int` IDs of
+    [`Workspace`](#workspace) objects that must be moved.
+  * (optional) `requests` is an `Array` of `int` IDs of [`Request`](#request)
+    objects that must be moved.
+
+**Returns**:
+
+* `bool` - whether all objects were moved or not.
+
+**Exceptions**:
+
+* [`Request`](#request) cannot be moved to
+  [Root Workspace](#root-workspace), server must respond with
+  [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)
+  if such attempt is made.
+
+**Example**:
+
+Following request will move [`Workspace`](#workspace) `1` to
+[Root Workspace](#root-workspace) and [`Workspace`](#workspace) `2` and
+[`Request`](#request) `1` to [Recycle Bin](#recycle-bin).
+
+```json
+[
+	{
+		"workspace": -100,
+		"workspaces": [1,2],
+		"requests": [1],
+	},
+	{
+		"workspace": 0,
+		"workspaces": [1]
+	}
+]
+```
