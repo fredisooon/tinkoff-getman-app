@@ -1,0 +1,38 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="create_workspace_table" author="kharitonov">
+        <createTable tableName="workspace">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="workspace_fk_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="add_fk_workspace" author="kharitonov">
+        <addForeignKeyConstraint baseColumnNames="workspace_fk_id"
+                                 baseTableName="workspace"
+                                 constraintName="workspace_workspace_fk"
+                                 referencedColumnNames="id"
+                                 referencedTableName="workspace"/>
+    </changeSet>
+
+    <changeSet id="add_fk_request" author="kharitonov">
+        <addForeignKeyConstraint baseColumnNames="workspace_id"
+                                 baseTableName="request"
+                                 constraintName="request_workspace_fk"
+                                 referencedColumnNames="id"
+                                 referencedTableName="workspace"/>
+    </changeSet>
+</databaseChangeLog>
