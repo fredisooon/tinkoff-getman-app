@@ -6,15 +6,17 @@ import com.example.getmanapp.utils.Query;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@Table
+@Table
 public class Request {
 
-    //@Id
-    private Long Id;
+    @Id
+    private Long id;
 
     private String httpVersion;
 
@@ -33,4 +35,6 @@ public class Request {
     private Query query;
 
     private Payload payload;
+
+    private Long workspace_id;
 }
