@@ -1,19 +1,19 @@
 package com.example.getmanapp.model;
 
-import com.example.getmanapp.utils.Headers;
-import com.example.getmanapp.utils.Payload;
-import com.example.getmanapp.utils.Query;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table
 public class Request {
+
 
     @Id
     private Long id;
@@ -30,9 +30,9 @@ public class Request {
 
     private String path;
 
-    private Headers headers;
+    private List<List<String>> headers;
 
-    private Query query;
+    private List<List<String>> query;
 
     private Payload payload;
 
