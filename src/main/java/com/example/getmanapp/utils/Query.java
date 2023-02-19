@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -12,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class Query {
 
-    private List<List<String>> queries = new ArrayList<>();
+    private List<List<String>> queries;
 }

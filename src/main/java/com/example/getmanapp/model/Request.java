@@ -1,11 +1,10 @@
 package com.example.getmanapp.model;
 
-import com.example.getmanapp.utils.Headers;
-import com.example.getmanapp.utils.Payload;
-import com.example.getmanapp.utils.Query;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Request {
 
     //@Id
-    private Long Id;
+    //private Long Id;
 
     private String httpVersion;
 
@@ -28,9 +27,10 @@ public class Request {
 
     private String path;
 
-    private Headers headers;
+    private List<List<String>> headers;
 
-    private Query query;
+    private List<List<String>> query;
 
-    private Payload payload;
+    private List<List<String>> payload;
+
 }
