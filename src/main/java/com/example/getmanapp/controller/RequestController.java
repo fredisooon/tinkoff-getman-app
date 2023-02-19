@@ -1,6 +1,6 @@
 package com.example.getmanapp.controller;
 
-import com.example.getmanapp.controller.requestsClasses.RequestAPI;
+import com.example.getmanapp.model.Request;
 import com.example.getmanapp.service.HttpService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -29,9 +29,10 @@ public class RequestController {
 
     @PostMapping()
     public Mono<String> createNewRequest(@RequestParam(value = "workspace", required = false) String workspaceId,
-                                         @RequestBody RequestAPI requestAPI) {
+                                         @RequestBody Request request) {
         try {
-            return httpService.getInternalRequest(requestAPI);
+            System.out.println(request.toString());
+            return httpService.getInternalRequest(request);
         }
         catch (Exception e) {
             e.printStackTrace();
