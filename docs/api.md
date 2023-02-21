@@ -25,7 +25,7 @@ Where:
 
 * `<baseurl>` is base API URL.
 * `<version>` is [schema version](#schema-version).
-    * If schema is omitted from URL it must be supplied via other methods (see [schema version](#schema-version)).
+  * If schema is omitted from URL it must be supplied via other methods (see [schema version](#schema-version)).
 * `<endpoint>` is endpoint path.
 
 ### Token header
@@ -99,7 +99,7 @@ Where:
 
 * `http_version` is HTTP protocol version, e.g. `0.9`, `1.0`, and so on.
 * `method` is HTTP [request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods),
-  e.g. `GET` or `POST`. (**must** be uppercase)
+	e.g. `GET` or `POST`. (**must** be uppercase)
 * `scheme` is HTTP scheme, e.g. `http` or `https` (**must** be lowercase).
 * `host` is request target host.
 * `port` is request target port.
@@ -107,7 +107,7 @@ Where:
 * `headers` is request HTTP headers (see [Headers](#headers) object).
 * `query` is request URL query (see [Query](#query) object).
 * `payload` is request payload (see [Payload](#payload) object).
-    * **Must** be `null` for unsupported methods (e.g. `GET` or `HEAD`).
+  * **Must** be `null` for unsupported methods (e.g. `GET` or `HEAD`).
 
 ### `Headers`
 ----
@@ -175,8 +175,8 @@ Example:
 Where:
 
 * `type` is payload type.
-    * `plain` payload must be decoded added **as-is** to request.
-      With this type payload's `data` is `Base64` encoded.
+  * `plain` payload must be decoded added **as-is** to request.
+    With this type payload's `data` is `Base64` encoded.
 * `data` is payload's body.
 
 > Editor note: in future versions there maybe more types of payloads, e.g.
@@ -262,22 +262,22 @@ objects.
 **General exceptions**:
 
 * If server cannot recognize endpoint it must respond with
-  [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
-* If request is missing some required parameters server must respond with
+   [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
+* If request is missing some required parameters server must respond with 
   [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400).
 * If server recognize endpoint, but requested method is not supported server
   must respond with
   [405 Method Not Allowed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405).
 * For `GET`, `PUT` and `DELETE` requests:
-    * If there is no such object server must respond with
-      [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
+  * If there is no such object server must respond with
+    [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
 * For `POST` and `PUT` requests:
-    * If server cannot recognize body or body is not conform to specs server must
-      respond with
-      [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400).
-    * If server exhausted available storage quota for the data it must respond
-      with
-      [`507 Insufficient Storage`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/507).
+  * If server cannot recognize body or body is not conform to specs server must
+    respond with 
+    [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400).
+  * If server exhausted available storage quota for the data it must respond
+    with
+    [`507 Insufficient Storage`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/507).
 
 ### Request
 ----
@@ -364,7 +364,7 @@ Moves existing [`Request`](#request) object to the other
 **Body**:
 
 * `Object` where:
-    * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
+  * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
 
 **Returns**:
 
@@ -423,7 +423,7 @@ Creates new [`Workspace`](#workspace) object and stores it.
 
 * (optional, default) `workspace` is `int` ID of the [`Workspace`](#workspace)
   to place this object to.
-    * Default value is `0` ([Root Workspace](#root-workspace)).
+  * Default value is `0` ([Root Workspace](#root-workspace)).
 
 **Body**:
 
@@ -441,7 +441,7 @@ Deletes existing [`Workspace`](#workspace) object.
 **Query parameters**:
 
 * (optional, defualt) `cascade` - Cascade deletion of children objects.
-    * Default value is `false`.
+  * Default value is `false`.
 
 **URI parameters**:
 
@@ -472,7 +472,7 @@ Moves existing [`Workspace`](#workspace) object to the other
 **Body**:
 
 * `Object` where:
-    * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
+  * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
 
 ### Mass move
 ----
@@ -495,12 +495,12 @@ competed successfully or none of them.
 **Body**:
 
 * `Array` of `Object`s where
-    * `workspace` is `int` ID of the [`Workspace`](#workspace) to place this
-      group of objects to.
-    * (optional) `workspaces` is an `Array` of `int` IDs of
-      [`Workspace`](#workspace) objects that must be moved.
-    * (optional) `requests` is an `Array` of `int` IDs of [`Request`](#request)
-      objects that must be moved.
+  * `workspace` is `int` ID of the [`Workspace`](#workspace) to place this
+    group of objects to.
+  * (optional) `workspaces` is an `Array` of `int` IDs of
+    [`Workspace`](#workspace) objects that must be moved.
+  * (optional) `requests` is an `Array` of `int` IDs of [`Request`](#request)
+    objects that must be moved.
 
 **Returns**:
 
