@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 //@Table
 public class Status {
 
-    //@Id
-    private Long id;
+//    //@Id
+//    private Integer id;
+    private Integer code;
+    private String text;
+
 }
