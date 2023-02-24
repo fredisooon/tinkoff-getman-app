@@ -3,7 +3,7 @@ package com.example.getmanapp.controller;
 import com.example.getmanapp.config.WebClientConfiguration;
 import com.example.getmanapp.model.Request;
 import com.example.getmanapp.model.Response;
-import com.example.getmanapp.service.HttpService;
+import com.example.getmanapp.webclient.ExternalRequester;
 import com.example.getmanapp.service.RequestService;
 import com.example.getmanapp.utils.mix.AdapterLayer;
 import com.example.getmanapp.utils.mix.RequestAdapter;
@@ -19,14 +19,14 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/version/1/request")
 public class RequestController {
     @Autowired
-    private  WebClient defaultWebClient = WebClientConfiguration.webClientFromScratch();
+    private final WebClient defaultWebClient = WebClientConfiguration.webClientFromScratch();
 
-    private final HttpService httpService;
+    private final ExternalRequester externalRequester;
     private final  RequestService requestService;
 
 
-    public RequestController(HttpService httpService, RequestService requestService) {
-        this.httpService = httpService;
+    public RequestController(ExternalRequester externalRequester, RequestService requestService) {
+        this.externalRequester = externalRequester;
         this.requestService = requestService;
     }
 
@@ -54,12 +54,12 @@ public class RequestController {
 
     @PostMapping()
     public Mono<Response> createNewRequest(@RequestParam(value = "workspace") String workspaceId,
-                                                           @RequestBody RequestAdapter requestAdapter) {
+                                           @RequestBody RequestAdapter requestAdapter) {
         try {
             if (requestAdapter != null) {
                 Request request = AdapterLayer.transferRequestModel(requestAdapter);
                 request.setWorkspace_id(Long.parseLong(workspaceId));
-                return httpService.getInternalRequest(request);
+                return externalRequester.getExternalRequest(request);
             }
             else
                 return Mono.error(Exception::new);
