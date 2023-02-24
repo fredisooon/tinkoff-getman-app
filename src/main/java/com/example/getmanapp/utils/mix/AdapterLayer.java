@@ -18,10 +18,23 @@ public class AdapterLayer {
         request.setHost(requestAdapter.getHost());
         request.setPort(requestAdapter.getPort());
         request.setPath(requestAdapter.getPath());
-        request.setQuery(new Query(requestAdapter.getQuery()));
-        request.setPayload(new Payload(requestAdapter.getPayload().get(0).get(1),
-                                       requestAdapter.getPayload().get(1).get(1)));
-        request.setHeaders(fromNestedListToMap(requestAdapter.getHeaders()));
+        if (requestAdapter.getQuery() == null)
+            request.setQuery(new Query());
+        else
+            request.setQuery(new Query(requestAdapter.getQuery()));
+        if (requestAdapter.getHeaders() == null)
+            request.setHeaders(new HttpHeaders());
+        else
+            request.setHeaders(fromNestedListToMap(requestAdapter.getHeaders()));
+
+        if (requestAdapter.getPayload() == null)
+            request.setPayload(new Payload());
+        else {
+            if (!requestAdapter.getPayload().isEmpty())
+                request.setPayload(new Payload(requestAdapter.getPayload().get(0).get(1),
+                        requestAdapter.getPayload().get(1).get(1)));
+        }
+
         return request;
     }
 

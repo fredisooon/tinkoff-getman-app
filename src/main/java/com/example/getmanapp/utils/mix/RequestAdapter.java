@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,11 +23,11 @@ public class RequestAdapter {
 
     private String path;
 
-    private List<List<String>> headers;
+    private List<List<String>> headers = new ArrayList<>();
 
-    private List<List<String>> query;
+    private List<List<String>> query= new ArrayList<>();
 
-    private List<List<String>> payload;
+    private List<List<String>> payload= new ArrayList<>();
 
     private Long workspace_id;
 }
