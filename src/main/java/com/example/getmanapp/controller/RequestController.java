@@ -1,7 +1,10 @@
 package com.example.getmanapp.controller;
 
 import com.example.getmanapp.model.Request;
-import com.example.getmanapp.service.HttpService;
+import com.example.getmanapp.model.Workspace;
+import com.example.getmanapp.service.RequestService;
+import com.example.getmanapp.utils.Id;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -10,10 +13,11 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/version/1/request")
 public class RequestController {
 
-    private final HttpService httpService;
+    private RequestService requestService;
 
-    public RequestController(HttpService httpService) {
-        this.httpService = httpService;
+    @Autowired
+    public RequestController(RequestService requestService) {
+        this.requestService = requestService;
     }
 
     @GetMapping("/{id}")
@@ -28,14 +32,18 @@ public class RequestController {
     }
 
     @PostMapping()
-    public Mono<String> createNewRequest(@RequestParam(value = "workspace", required = false) String workspaceId,
+    public Mono<Id> createNewRequest(@RequestParam(value = "workspace") String workspaceId,
                                          @RequestBody Request request) {
-        try {
-            System.out.println(request.toString());
-            return httpService.getInternalRequest(request);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        if (!workspaceId.equals("0") && !workspaceId.equals("-100")) {
+            Mono<Request> newRequest = requestService.saveRequest(request, workspaceId);
+
+            return Mono.just(new Id()).flatMap(e -> newRequest.map(nr -> {
+                e.setId(nr.getId());
+                e.setParent(Long.parseLong(workspaceId));
+
+                return e;
+            }));
+        } else {
             return Mono.empty();
         }
     }

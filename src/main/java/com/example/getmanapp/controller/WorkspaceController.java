@@ -1,23 +1,42 @@
 package com.example.getmanapp.controller;
 
+import com.example.getmanapp.model.Workspace;
+import com.example.getmanapp.service.WorkspaceService;
+import com.example.getmanapp.utils.Id;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
+@Slf4j
 @RequestMapping("/api/version/1/workspace")
 public class WorkspaceController {
 
+    private WorkspaceService workspaceService;
+
+    @Autowired
+    public WorkspaceController(WorkspaceService workspaceService) {
+        this.workspaceService = workspaceService;
+    }
+
+    @PostMapping
+    public Mono<Id> createWorkspace(@RequestParam(value = "workspace", required = false,
+            defaultValue = "0") String workspace_fk_id
+            , @RequestBody Workspace workspace) {
+        log.info("First step: " + workspace.toString());
+        return workspaceService.saveWorkspace(workspace, workspace_fk_id);
+    }
+
     @GetMapping("/{id}")
-    public String getWorkspaceById(@PathVariable("id") String id) {
-        if (Integer.parseInt(id) % 2 == 0)
-            return "Id " + id + " is even.";
-        else
-            return "Id " + id + " is odd.";
+    public Mono<Workspace> getWorkspaceById(@PathVariable("id") Long id) {
+        return workspaceService.getWorkspaceById(id);
     }
 
     @PutMapping("/{id}")
     public String updateWorkspace(@PathVariable("id") String id,
-                                  @RequestBody String body) {
-        return body + id;
+                                  @RequestBody Workspace workspace) {
+        return null;
     }
 
     @DeleteMapping("/{id}")
