@@ -25,7 +25,7 @@ Where:
 
 * `<baseurl>` is base API URL.
 * `<version>` is [schema version](#schema-version).
-    * If schema is omitted from URL it must be supplied via other methods (see [schema version](#schema-version)).
+  * If schema is omitted from URL it must be supplied via other methods (see [schema version](#schema-version)).
 * `<endpoint>` is endpoint path.
 
 ### Token header
@@ -53,11 +53,18 @@ If server's schema is not compatible with user's server must respond with
 
 ## Objects
 
-### `ID`
+### `ID<T, Parent>`
 ----
 
 ID is an object that contains relatively unique object and parent relatively
 unique ID. Together they form globally unique identity.
+
+Type parameter `T` specifies type of the object this ID is created for.
+It can be nullable. By default it is `Any?`.
+
+Type parameter `Parent` specifies type of parent object. It can be nullable.
+By default it is `Any?`.
+
 
 Example:
 ```json5
@@ -83,6 +90,7 @@ Example:
 
 ```json5
 {
+	"id": { "id": 1, "parent": 0 }, // ID<Request, Workspace> object
 	"http_version": "1.1",
 	"method": "GET",
 	"scheme": "http",
@@ -97,9 +105,11 @@ Example:
 
 Where:
 
+* `id` is [ID](#idt-parent)\<[Request](#request), [Workspace](#workspace)\>
+  object of request.
 * `http_version` is HTTP protocol version, e.g. `0.9`, `1.0`, and so on.
 * `method` is HTTP [request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods),
-  e.g. `GET` or `POST`. (**must** be uppercase)
+	e.g. `GET` or `POST`. (**must** be uppercase)
 * `scheme` is HTTP scheme, e.g. `http` or `https` (**must** be lowercase).
 * `host` is request target host.
 * `port` is request target port.
@@ -107,7 +117,7 @@ Where:
 * `headers` is request HTTP headers (see [Headers](#headers) object).
 * `query` is request URL query (see [Query](#query) object).
 * `payload` is request payload (see [Payload](#payload) object).
-    * **Must** be `null` for unsupported methods (e.g. `GET` or `HEAD`).
+  * **Must** be `null` for unsupported methods (e.g. `GET` or `HEAD`).
 
 ### `Headers`
 ----
@@ -154,10 +164,26 @@ This example corresponds to the following query:
 ?query-1=value&same-name-query=value_1&same-name-query=value_2
 ```
 
+### `RequestSnapshot`
+----
+
+Request snapshot is an unmodifiable copy of [Request](#request).
+
+It's used for referencing exact parameters used to perform [Request](#request)
+in the [Response](#response) object.
+
+It has following differences from [Request](#request):
+
+* `id` is [ID](#idt-parent)\<[RequestSnapshot](#requestsnapshot), void?\> object
+  of request snapshot where `parent` is **always** null.
+  > Editor note: this is done because request snapshot is used to inspect
+  > parameters and is read-only by design, so it doesn't need to belong to
+  > anything.
+
 ### `Payload`
 ----
 
-Payload is an object that describes [Request](#request)'s HTTP payload part.
+Payload is an object that describes HTTP payload part.
 
 Server **may** parse payload's data and provide insights about it, e.g.
 warnings, such as inconsistency of payload type and corresponding content type
@@ -174,13 +200,72 @@ Example:
 
 Where:
 
-* `type` is payload type.
-    * `plain` payload must be decoded added **as-is** to request.
-      With this type payload's `data` is `Base64` encoded.
+* `type` is `enum` payload type.
+  * `plain`:
+    * With this type payload's `data` is `Base64` encoded.
+	* (if request) Payload must be decoded and added **as-is** to request.
 * `data` is payload's body.
 
 > Editor note: in future versions there maybe more types of payloads, e.g.
-> request streaming.
+> request/response streaming.
+
+### `Response`
+----
+
+Response is an object that describes performed [Request](#request) response.
+
+It's using [RequestSnapshot](#requestsnapshot) to preserve original
+[Request](#request) parameters (because [Request](#request) is a mutable preset).
+
+Example:
+
+```json5
+{
+	"id": { "id": 1, "parent": null }, // ID<Response, ResponseSet?> object
+	"requestSnapshot": 1,
+	"executed_at": 0,
+	"closed_at": null,
+	"status": {
+		"code": 200,
+		"text": "OK"
+	},
+	"headers": null, // Headers object or null
+	"payload": null // Payload object or null
+}
+```
+
+Where:
+
+* `id` is
+  [ID](#idt-parent)\<[Response](#response), [ResponseSet](#responseset)?\>
+  object of response.
+  * If response doesn't belong to [ResponseSet](#responseset) `parent` will be
+    `null`.
+* `requestSnapshot` is an `int` ID of [RequestSnapshot](#requestsnapshot)
+  object.
+* `executed_at` is UNIX timestamp in milliseconds when request begun to execute.
+* `closed_at` is UNIX timestamp in milliseconds when request closed connection
+  or `null` if request is still in progress (e.g. downloading body, or
+  connection is still alive for some reason).
+* `status` is `null` if network error is occurred otherwise it's an `Object`
+  where:
+  * `code` is an `int` HTTP response code.
+  * `text` is a `String` HTTP response description as provided by the server.
+* `headers` is response HTTP headers (see [Headers](#headers) object) or `null`
+  if network error is occurred.
+* `payload` is response payload (see [Payload](#payload) object).
+  * This field can be `null` when server responded without body, network error
+    is occurred, payload is still downloading or other reasons that makes
+	payload unavailable.
+* (optional) `error` is an `Object` where:
+  * `code` is an `int` code of error.
+  * `text` is `String` indicating network error text.
+
+
+### `ResponseSet`
+----
+
+> Editor note: unfinished part. 
 
 ### `Workspace`
 ----
@@ -192,6 +277,7 @@ Example:
 
 ```json5
 {
+	"id": { "id": 1, "parent": 0 }, // ID<Workspace, Workspace> object
 	"name": "Workspace name",
 	"description": "Workspace description",
 	"requests": [], // Array<Request>
@@ -201,6 +287,8 @@ Example:
 
 Where:
 
+* `id` is [ID](#idt-parent)\<[Workspace](#workspace), [Workspace](#workspace)\>
+  object of workspace.
 * `name` is a workspace name.
 * `description` is a workspace description.
 * `requests` is an `Array` of [`Request`](#request) objects within this
@@ -262,22 +350,22 @@ objects.
 **General exceptions**:
 
 * If server cannot recognize endpoint it must respond with
-  [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
-* If request is missing some required parameters server must respond with
+   [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
+* If request is missing some required parameters server must respond with 
   [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400).
 * If server recognize endpoint, but requested method is not supported server
   must respond with
   [405 Method Not Allowed](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/405).
 * For `GET`, `PUT` and `DELETE` requests:
-    * If there is no such object server must respond with
-      [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
+  * If there is no such object server must respond with
+    [`404 Not Found`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/404).
 * For `POST` and `PUT` requests:
-    * If server cannot recognize body or body is not conform to specs server must
-      respond with
-      [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400).
-    * If server exhausted available storage quota for the data it must respond
-      with
-      [`507 Insufficient Storage`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/507).
+  * If server cannot recognize body or body is not conform to specs server must
+    respond with 
+    [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400).
+  * If server exhausted available storage quota for the data it must respond
+    with
+    [`507 Insufficient Storage`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/507).
 
 ### Request
 ----
@@ -328,7 +416,8 @@ Creates new [`Request`](#request) object and stores it.
 
 **Returns**:
 
-* [`ID`](#id) object - ID of created object.
+* [ID](#idt-parent)\<[Request](#request), [Workspace](#workspace)\> object - ID
+  of created object.
 
 **Exceptions**:
 
@@ -364,7 +453,7 @@ Moves existing [`Request`](#request) object to the other
 **Body**:
 
 * `Object` where:
-    * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
+  * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
 
 **Returns**:
 
@@ -376,6 +465,30 @@ Moves existing [`Request`](#request) object to the other
   [Root Workspace](#root-workspace), server must respond with
   [`400 Bad Request`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)
   if such attempt is made.
+
+
+#### `POST` `/request/<id>/execute`
+----
+
+Executes [`Request`](#request) preset on the server and returns
+[`Response`](#response) ID.
+
+Server must keep connection alive while performing request and respond as soon
+as it will receive HTTP status and headers.
+
+If network error is occurred while performing request, server still respond as
+usual, because [`Response`](#response) contains all related information.
+
+Response's `payload` can be `null` while it's still downloading.
+
+**URI parameters**:
+
+* `id` - ID of the [`Request`](#request) object to execute.
+
+**Returns**:
+
+* [ID](#idt-parent)\<[Response](#response), [ResponseSet](#responseset)?\>
+  object - ID of created response.
 
 ### Workspace
 ----
@@ -423,7 +536,7 @@ Creates new [`Workspace`](#workspace) object and stores it.
 
 * (optional, default) `workspace` is `int` ID of the [`Workspace`](#workspace)
   to place this object to.
-    * Default value is `0` ([Root Workspace](#root-workspace)).
+  * Default value is `0` ([Root Workspace](#root-workspace)).
 
 **Body**:
 
@@ -440,8 +553,8 @@ Deletes existing [`Workspace`](#workspace) object.
 
 **Query parameters**:
 
-* (optional, defualt) `cascade` - Cascade deletion of children objects.
-    * Default value is `false`.
+* (optional, default) `cascade` - Cascade deletion of children objects.
+  * Default value is `false`.
 
 **URI parameters**:
 
@@ -472,7 +585,7 @@ Moves existing [`Workspace`](#workspace) object to the other
 **Body**:
 
 * `Object` where:
-    * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
+  * `workspace` is `int` ID of [`Workspace`](#workspace) where to move object.
 
 ### Mass move
 ----
@@ -495,12 +608,12 @@ competed successfully or none of them.
 **Body**:
 
 * `Array` of `Object`s where
-    * `workspace` is `int` ID of the [`Workspace`](#workspace) to place this
-      group of objects to.
-    * (optional) `workspaces` is an `Array` of `int` IDs of
-      [`Workspace`](#workspace) objects that must be moved.
-    * (optional) `requests` is an `Array` of `int` IDs of [`Request`](#request)
-      objects that must be moved.
+  * `workspace` is `int` ID of the [`Workspace`](#workspace) to place this
+    group of objects to.
+  * (optional) `workspaces` is an `Array` of `int` IDs of
+    [`Workspace`](#workspace) objects that must be moved.
+  * (optional) `requests` is an `Array` of `int` IDs of [`Request`](#request)
+    objects that must be moved.
 
 **Returns**:
 
@@ -532,3 +645,52 @@ Following request will move [`Workspace`](#workspace) `1` to
 	}
 ]
 ```
+
+### RequestSnapshot
+----
+
+#### `GET` `/request_snapshot/<id>`
+----
+
+Retrieve existing [`RequestSnapshot`](#requestsnapshot) object from the server.
+
+**URI parameters**:
+
+* `id` - ID of the requested [`RequestSnapshot`](#requestsnapshot) object.
+
+**Returns**:
+
+* [`RequestSnapshot`](#requestsnapshot) - requested object.
+
+### Response
+----
+
+#### `GET` `/response/<id>`
+----
+
+Retrieve existing [`Response`](#response) object from the server.
+
+**URI parameters**:
+
+* `id` - ID of the requested [`Response`](#response) object.
+
+**Returns**:
+
+* [`Response`](#response) - requested object.
+
+### `GET` `/response/<id>/await`
+
+Awaits [Response](#response) within a given timeout, waiting for connection
+being closed.
+This method achieves "long-pooling" of [Response](#response) payload.
+
+**Query parameters**:
+
+* (optional, default) `timeout` - Await timeout in seconds.
+  * Default value is `60` seconds.
+
+**Returns**:
+
+* `bool`:
+  * `false` if await is timed out and connection is still open.
+  * `true` if [Response](#response) is fully ready.
