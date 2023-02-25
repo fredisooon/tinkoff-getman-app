@@ -1,19 +1,20 @@
 package com.example.getmanapp.utils;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class Id {
-
-    @Getter
-    private Integer id;
+@Slf4j
+public class Id{
 
     @Getter
     @Setter
-    private Integer parent;
+    private Long id;
+
+    @Getter
+    @Setter
+    private Long parent;
+
 }

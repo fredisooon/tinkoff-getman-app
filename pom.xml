@@ -67,6 +67,14 @@
             <artifactId>liquibase-core</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/io.r2dbc/r2dbc-spi -->
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-spi</artifactId>
+            <version>1.0.0.RELEASE</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

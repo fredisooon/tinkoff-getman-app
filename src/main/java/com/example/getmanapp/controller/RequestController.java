@@ -10,6 +10,9 @@ import com.example.getmanapp.utils.mix.RequestAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import com.example.getmanapp.model.Workspace;
+import com.example.getmanapp.utils.Id;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -27,7 +30,6 @@ public class RequestController {
 
     public RequestController(ExternalRequester externalRequester, RequestService requestService) {
         this.externalRequester = externalRequester;
-        this.requestService = requestService;
     }
 
     @GetMapping("/{id}")
@@ -69,6 +71,7 @@ public class RequestController {
             return Mono.error(e);
         }
     }
+
 
     @DeleteMapping("/{id}")
     public Boolean deleteRequestById(@PathVariable("id") String id) {

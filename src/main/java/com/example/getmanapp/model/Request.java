@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.http.HttpHeaders;
 
@@ -20,7 +21,7 @@ public class Request {
     @Id
     private Long id;
 
-    private String httpVersion;
+    private String http_version;
 
     private String method;
 
