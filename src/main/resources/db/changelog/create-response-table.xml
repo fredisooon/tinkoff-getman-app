@@ -1,0 +1,19 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+        <changeSet id="create_table_response" author="kharitonov">
+            <createTable tableName="response">
+                <column name="id" type="BIGINT" autoIncrement="true">
+                    <constraints primaryKey="true" nullable="false"/>
+                </column>
+                <column name="requestSnapshot" type="INTEGER"/>
+                <column name="executed_at" type="BIGINT"/>
+                <column name="closed_at" type="BIGINT"/>
+                <column name="status" type="JSON"/>
+                <column name="headers" type="JSON"/>
+                <column name="payload" type="JSON"/>
+            </createTable>
+        </changeSet>
+</databaseChangeLog>
