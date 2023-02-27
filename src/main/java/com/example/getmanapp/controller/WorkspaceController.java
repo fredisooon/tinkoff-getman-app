@@ -25,7 +25,7 @@ public class WorkspaceController {
             defaultValue = "0") String workspace_fk_id
             , @RequestBody Workspace workspace) {
         log.info("First step: " + workspace.toString());
-        return workspaceService.saveWorkspace(workspace, workspace_fk_id);
+        return null;
     }
 
     @GetMapping("/{id}")
