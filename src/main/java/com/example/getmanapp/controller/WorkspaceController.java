@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/version/1/workspace")
+@RequestMapping(path = "${v1API}/workspace")
 public class WorkspaceController {
 
     private WorkspaceService workspaceService;

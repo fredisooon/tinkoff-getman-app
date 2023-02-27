@@ -4,6 +4,7 @@ import com.example.getmanapp.model.Request;
 import com.example.getmanapp.model.Workspace;
 import com.example.getmanapp.repository.RequestRepository;
 import com.example.getmanapp.repository.WorkspaceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,7 +15,7 @@ import java.util.List;
 public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final RequestRepository requestRepository;
-
+    @Autowired
     public WorkspaceService(WorkspaceRepository workspaceRepository, RequestRepository requestRepository) {
         this.workspaceRepository = workspaceRepository;
         this.requestRepository = requestRepository;
@@ -23,6 +24,8 @@ public class WorkspaceService {
     public Mono<Workspace> saveWorkspace(Workspace workspace) {
         return workspaceRepository.save(workspace);
     }
+
+
 
     public Flux<Workspace> getAllWorkspaces() {
         return workspaceRepository.findAll();
