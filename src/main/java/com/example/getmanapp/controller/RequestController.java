@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 
 
 @RestController
-@RequestMapping("/api/version/1/request")
+@RequestMapping(path = "${v1API}/request")
 public class RequestController {
     @Autowired
     private final WebClient defaultWebClient = WebClientConfiguration.webClientFromScratch();
