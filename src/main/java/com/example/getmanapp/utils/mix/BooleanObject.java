@@ -10,4 +10,10 @@ import lombok.Data;
  */
 public class BooleanObject {
     private Boolean result;
+    private String exceptionMessage;
+
+    public BooleanObject(Boolean result) {
+        this.result = result;
+        this.exceptionMessage = null;
+    }
 }
