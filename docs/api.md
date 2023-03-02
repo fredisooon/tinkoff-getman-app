@@ -99,7 +99,7 @@ Example:
 	"path": "",
 	"headers": null, // Headers object or null
 	"query": null, // Query object or null
-	"payload": null, // Payload object or null
+	"payload": null // Payload object or null
 }
 ```
 
@@ -155,7 +155,7 @@ Example:
 [
 	["query-1", "value"],
 	["same-name-query", "value_1"],
-	["same-name-query", "value_2"],
+	["same-name-query", "value_2"]
 ]
 ```
 
@@ -637,7 +637,7 @@ Following request will move [`Workspace`](#workspace) `1` to
 	{
 		"workspace": -100,
 		"workspaces": [1,2],
-		"requests": [1],
+		"requests": [1]
 	},
 	{
 		"workspace": 0,
