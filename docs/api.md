@@ -281,7 +281,7 @@ Example:
 	"name": "Workspace name",
 	"description": "Workspace description",
 	"requests": [], // Array<int>
-	"workspaces:": [] // Array<int>
+	"workspaces": [] // Array<int>
 }
 ```
 
