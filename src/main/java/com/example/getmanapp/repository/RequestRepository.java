@@ -9,8 +9,8 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface RequestRepository extends ReactiveCrudRepository<Request, Long> {
-    @Query("SELECT * FROM request WHERE workspace_id = :workspaceId")
-    Flux<Request> getRequestsByWorkspaceId(Long workspaceId);
+    @Query("SELECT id FROM request WHERE workspace_id = :workspaceId")
+    Flux<Long> getRequestsIdByWorkspaceId(Long workspaceId);
 
     @Query("DELETE FROM request WHERE workspace_id = :id")
     Mono<Void> deleteAllByWorkspaceId(Long id);

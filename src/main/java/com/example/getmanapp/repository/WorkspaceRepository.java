@@ -13,4 +13,6 @@ import reactor.core.publisher.Mono;
 public interface WorkspaceRepository extends ReactiveCrudRepository<Workspace, Long> {
     @Query("SELECT * FROM workspace WHERE workspace_fk_id = :workspaceFkId")
     Flux<Workspace> getWorkspaceByWorkspaceFkId(@Param("workspaceFkId") Long workspaceFkId);
+    @Query("SELECT id FROM workspace WHERE workspace_fk_id = :workspaceFkId")
+    Flux<Long> getListOfWorkspacesIdByWorkspaceFkId(@Param("workspaceFkId") Long workspaceFkId);
 }

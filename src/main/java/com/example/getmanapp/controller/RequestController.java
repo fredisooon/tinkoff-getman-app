@@ -7,6 +7,7 @@ import com.example.getmanapp.webclient.ExternalRequester;
 import com.example.getmanapp.service.RequestService;
 import com.example.getmanapp.utils.mix.AdapterLayer;
 import com.example.getmanapp.utils.mix.RequestAdapter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-
+@Slf4j
 @RestController
 @RequestMapping(path = "${v1API}/request")
 public class RequestController {
@@ -54,18 +55,21 @@ public class RequestController {
     }
 
     @PostMapping()
-    public Mono<Response> createNewRequest(@RequestParam(value = "workspace") String workspaceId,
+    public Mono<Boolean> createNewRequest(@RequestParam(value = "workspace") String workspaceId,
                                            @RequestBody RequestAdapter requestAdapter) {
         try {
             if (requestAdapter != null) {
                 Request request = AdapterLayer.transferRequestModel(requestAdapter);
                 request.setWorkspace_id(Long.parseLong(workspaceId));
-                return externalRequester.getExternalRequest(request);
+                log.info(request.toString());
+                return requestService.getSomething(request);
+//                return externalRequester.getExternalRequest(request);
             }
             else
                 return Mono.error(Exception::new);
         }
         catch (Exception e) {
+            log.info(e.getMessage());
             e.printStackTrace();
             return Mono.error(e);
         }

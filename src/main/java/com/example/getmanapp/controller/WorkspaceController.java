@@ -22,17 +22,65 @@ public class WorkspaceController {
         this.workspaceService = workspaceService;
     }
 
+    /**
+     * Sample request:
+     *
+     * for GET workspace/{40}
+     *
+     * @return
+     * {
+     *     "id": 40,
+     *     "name": "P",
+     *     "description": "desc",
+     *     "workspace_fk_id": 35,
+     *     "requests": [],
+     *     "workspaces": []
+     * }
+     */
     @GetMapping("/{id}")
     public Mono<Workspace> getWorkspaceById(@PathVariable("id") Long id) {
         return workspaceService.getWorkspaceById(id);
     }
 
+    /**
+     * Sample request:
+     *
+     * for PUT request workspace/38
+     *
+     * @return
+     *{
+     *     "id": 38,
+     *     "name": "Somwhere",
+     *     "description": "In America",
+     *     "workspace_fk_id": 35,
+     *     "requests": null,
+     *     "workspaces": null
+     * }
+     */
     @PutMapping("/{id}")
-    public Mono<Workspace> updateWorkspace(@PathVariable("id") String id,
+    public Mono<Workspace> updateWorkspace(@PathVariable("id") Long id,
                                            @RequestBody Workspace workspace) {
-        return workspaceService.updateWorkspaceById(workspace, Long.parseLong(id));
+
+        return workspaceService.updateWorkspaceById(id, workspace);
     }
 
+    /**
+     * Sample request:
+     *
+     * for POST workspace/workspace?=40
+     *
+     * @param workspace_fk_id = 40
+     * @param workspace:
+     *                 {
+     *                      "name": "SandBox",
+     *                      "description": "Smells like teen spirit"
+     *                  }
+     * @return
+     *      {
+     *     "id": 44,
+     *     "parent": 40
+     *      }
+     */
     @PostMapping()
     public Mono<Id> createWorkspace(@RequestParam(value = "workspace", required = false, defaultValue = "0")
                                         String workspace_fk_id,
@@ -42,25 +90,49 @@ public class WorkspaceController {
         return workspaceService.saveWorkspace(workspace);
     }
 
+    /**
+     * Sample request:
+     *
+     * for DELETE workspace/39 or workspace/39?cascade=true
+     *
+     *
+     * @param id = 39
+     * @param isCascade = default(false)    / true
+     * @return
+     *        {
+     *          "result": true,
+     *          "exceptionMessage": null
+     *        }
+     */
     @DeleteMapping("/{id}")
-    public Mono<BooleanObject> deleteWorkspaceById(@PathVariable("id") String id,
+    public Mono<BooleanObject> deleteWorkspaceById(@PathVariable("id") Long id,
                                                    @RequestParam(value = "cascade",
-                                                     defaultValue = "false") Boolean isCascade){
-
+                                                                 defaultValue = "false") Boolean isCascade){
         if (!isCascade) {
-            return workspaceService.deleteWorkspaceById(Long.parseLong(id));
+            return workspaceService.deleteWorkspaceById(id);
         }
         else
-            return workspaceService.deleteCascadeWorkspace(Long.parseLong(id));
+            return workspaceService.deleteCascadeWorkspace(id);
     }
 
+    /**
+     * Sample request:
+     *
+     * for POST workspace/38/move
+     *
+     * @param id = 38
+     * @param body = 28
+     * @return
+     * {
+     *     "result": true,
+     *     "exceptionMessage": null
+     * }
+     */
     @PostMapping("/{id}/move")
-    public Mono<BooleanObject> moveWorkspaceToWorkspace(@PathVariable("id") String id,
-                                                  @RequestBody MoveObject body) {
-        if (body != null)
-            return workspaceService.moveWorkspaceToWorkspace(Long.parseLong(id), body);
-        else
-            return Mono.error(new IllegalArgumentException());
+    public Mono<BooleanObject> moveWorkspaceToWorkspace(@PathVariable("id") Long id,
+                                                        @RequestBody MoveObject body) {
+
+        return workspaceService.moveWorkspaceToWorkspace(id, body);
     }
 
 }
