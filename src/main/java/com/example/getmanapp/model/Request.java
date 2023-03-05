@@ -21,7 +21,7 @@ public class Request {
     @Id
     private Long id;
 
-    private String http_version;
+    private String httpVersion;
 
     private String method;
 

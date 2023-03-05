@@ -2,6 +2,7 @@ package com.example.getmanapp.service;
 
 import com.example.getmanapp.model.Response;
 import com.example.getmanapp.repository.ResponseRepository;
+import com.example.getmanapp.utils.mix.BooleanObject;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,5 +30,12 @@ public class ResponseService {
 
     public Mono<Void> deleteResponseById(Long id) {
         return responseRepository.deleteById(id);
+    }
+
+    public Mono<BooleanObject> checkResponseAwait(Long id, String timeout) {
+        return responseRepository.
+                findById(id)
+                .thenReturn(new BooleanObject(Boolean.TRUE))
+                .defaultIfEmpty(new BooleanObject(Boolean.FALSE));
     }
 }

@@ -10,8 +10,6 @@ import com.example.getmanapp.utils.mix.RequestAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import com.example.getmanapp.model.Workspace;
-import com.example.getmanapp.utils.Id;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,7 +17,7 @@ import reactor.core.publisher.Mono;
 
 
 @RestController
-@RequestMapping("/api/version/1/request")
+@RequestMapping(path = "${v1API}/request")
 public class RequestController {
     @Autowired
     private final WebClient defaultWebClient = WebClientConfiguration.webClientFromScratch();
@@ -28,8 +26,9 @@ public class RequestController {
     private final  RequestService requestService;
 
 
-    public RequestController(ExternalRequester externalRequester, RequestService requestService) {
+    public RequestController(ExternalRequester externalRequester, RequestService requestService, RequestService requestService1) {
         this.externalRequester = externalRequester;
+        this.requestService = requestService1;
     }
 
     @GetMapping("/{id}")
