@@ -1,11 +1,13 @@
 package com.example.getmanapp.model;
 
+import com.example.getmanapp.utils.Payload;
+import com.example.getmanapp.utils.Query;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
-
+import org.springframework.http.HttpHeaders;
 
 
 @Data
@@ -30,11 +32,11 @@ public class Request {
 
     private String path;
 
-    private String headers;
+    private HttpHeaders headers;
 
-    private String query;
+    private Query query;
 
-    private String payload;
+    private Payload payload;
 
     private Long workspace_id;
 }
