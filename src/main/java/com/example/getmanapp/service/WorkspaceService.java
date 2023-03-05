@@ -32,7 +32,7 @@ public class WorkspaceService {
         return workspaceRepository.findById(workspaceId)
                 .flatMap(workspace -> {
                     Mono<List<Request>> requestsMono = requestRepository
-                            .getRequestsByWorkspaceId(workspaceId)
+                            .getRequestsByWorkspace_id(workspaceId)
                             .collectList();
                     Mono<List<Workspace>> workspacesMono = workspaceRepository
                             .getWorkspaceByWorkspaceFkId(workspaceId)
