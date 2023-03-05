@@ -8,6 +8,7 @@ import com.example.getmanapp.utils.mix.MassMoveItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@Transactional
 public class MassMoveService {
 
     private final WorkspaceRepository workspaceRepository;
@@ -46,7 +48,6 @@ public class MassMoveService {
                 .findById(item.getWorkspace())
                 .flatMap(result -> {
                     log.info(result.getName());
-
                     Mono<Boolean> findAndSetWorkspaces = findMovedWorkspaces(item.getWorkspaces(), item.getWorkspace());
                     Mono<Boolean> findAndSetRequests = findMovedRequests(item.getRequests(), item.getWorkspace());
 

@@ -23,8 +23,8 @@ public class Workspace {
     private Long workspace_fk_id;
 
     @Transient
-    private List<Request> requests;
+    private List<Long> requests;
 
     @Transient
-    private List<Workspace> workspaces;
+    private List<Long> workspaces;
 }

@@ -1,7 +1,7 @@
 package com.example.getmanapp.webclient;
 
 import com.example.getmanapp.config.WebClientConfiguration;
-import com.example.getmanapp.exceptions.SampleDefinedException;
+import com.example.getmanapp.exceptions.exception.SampleDefinedException;
 import com.example.getmanapp.model.Request;
 import com.example.getmanapp.model.Response;
 import com.example.getmanapp.model.Status;

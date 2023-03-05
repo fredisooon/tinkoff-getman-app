@@ -4,7 +4,6 @@ import com.example.getmanapp.config.WebClientConfiguration;
 import com.example.getmanapp.model.Request;
 import com.example.getmanapp.model.Response;
 import com.example.getmanapp.webclient.ExternalRequester;
-import com.example.getmanapp.service.RequestService;
 import com.example.getmanapp.utils.mix.AdapterLayer;
 import com.example.getmanapp.utils.mix.RequestAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +22,10 @@ public class RequestController {
     private final WebClient defaultWebClient = WebClientConfiguration.webClientFromScratch();
 
     private final ExternalRequester externalRequester;
-    private final  RequestService requestService;
 
 
-    public RequestController(ExternalRequester externalRequester, RequestService requestService, RequestService requestService1) {
+    public RequestController(ExternalRequester externalRequester) {
         this.externalRequester = externalRequester;
-        this.requestService = requestService1;
     }
 
     @GetMapping("/{id}")
