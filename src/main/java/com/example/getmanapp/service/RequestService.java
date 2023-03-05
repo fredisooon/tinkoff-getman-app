@@ -1,7 +1,10 @@
 package com.example.getmanapp.service;
 
+import com.example.getmanapp.exceptions.exception.WorkspaceSavingException;
 import com.example.getmanapp.model.Request;
+import com.example.getmanapp.model.TemoRequest;
 import com.example.getmanapp.repository.RequestRepository;
+import com.example.getmanapp.utils.Id;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +25,20 @@ public class RequestService{
 
     public Mono<Boolean> getSomething(Request request) {
         try {
-            return requestRepository.save(request).map(result -> true).switchIfEmpty(Mono.just(false));
+            log.info("Before saving in repo");
+            return requestRepository.save(request)
+                    .switchIfEmpty(Mono.error(new Exception()))
+                    .flatMap(e -> Mono.just(true))
+                    .log();
+
+//            workspaceRepository.save(workspace)
+//                    .switchIfEmpty(Mono.error(new WorkspaceSavingException(workspace)))
+//                    .flatMap(e -> Mono.just(new Id(e.getId(), e.getWorkspace_fk_id())))
+//                    .log();
         }
         catch (Exception ex) {
             log.info(ex.getMessage());
-
+            log.info("In throwing exception");
             return Mono.error(new Exception(ex.getMessage()));
         }
     }

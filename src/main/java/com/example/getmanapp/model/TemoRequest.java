@@ -6,15 +6,13 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table
-public class Request {
-
-
+public class TemoRequest {
     @Id
     private Long id;
 
@@ -30,11 +28,11 @@ public class Request {
 
     private String path;
 
-    private String headers;
+    private List<List<String>> headers;
 
-    private String query;
+    private List<List<String>> query;
 
-    private String payload;
+    private List<List<String>> payload;
 
     private Long workspace_id;
 }

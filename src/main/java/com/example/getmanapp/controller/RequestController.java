@@ -2,11 +2,10 @@ package com.example.getmanapp.controller;
 
 import com.example.getmanapp.config.WebClientConfiguration;
 import com.example.getmanapp.model.Request;
-import com.example.getmanapp.model.Response;
-import com.example.getmanapp.webclient.ExternalRequester;
+//import com.example.getmanapp.utils.mix.AdapterLayer;
+//import com.example.getmanapp.webclient.ExternalRequester;
 import com.example.getmanapp.service.RequestService;
-import com.example.getmanapp.utils.mix.AdapterLayer;
-import com.example.getmanapp.utils.mix.RequestAdapter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -23,14 +22,18 @@ public class RequestController {
     @Autowired
     private final WebClient defaultWebClient = WebClientConfiguration.webClientFromScratch();
 
-    private final ExternalRequester externalRequester;
+//    private final ExternalRequester externalRequester;
     private final  RequestService requestService;
 
-
-    public RequestController(ExternalRequester externalRequester, RequestService requestService, RequestService requestService1) {
-        this.externalRequester = externalRequester;
-        this.requestService = requestService1;
+    public RequestController(RequestService requestService) {
+        this.requestService = requestService;
     }
+
+
+//    public RequestController(ExternalRequester externalRequester, RequestService requestService) {
+//        this.externalRequester = externalRequester;
+//        this.requestService = requestService1;
+//    }
 
     @GetMapping("/{id}")
     public Mono<ResponseEntity<String>> getRequestById(@PathVariable("id") Long id) {
@@ -55,18 +58,28 @@ public class RequestController {
     }
 
     @PostMapping()
-    public Mono<Boolean> createNewRequest(@RequestParam(value = "workspace") String workspaceId,
-                                           @RequestBody RequestAdapter requestAdapter) {
+    public Mono<Boolean> createNewRequest(@RequestParam(value = "workspace") Long workspaceId,
+                                           @RequestBody Request request) {
         try {
-            if (requestAdapter != null) {
-                Request request = AdapterLayer.transferRequestModel(requestAdapter);
-                request.setWorkspace_id(Long.parseLong(workspaceId));
+            if (request != null) {
+//                request = AdapterLayer.transferRequestModel(requestA);
+
+                request.setWorkspace_id(workspaceId);
                 log.info(request.toString());
+                ObjectMapper objectMapper = new ObjectMapper();
+                String json = objectMapper.writeValueAsString(request.getHeaders());
+                System.out.println(json); // prints "[[\"foo\",\"bar\"],[\"baz\",\"qux\"]]"
+                System.out.println(json.getClass());
+                System.out.println(objectMapper.writeValueAsString(request.getPayload()));
+                System.out.println(objectMapper.writeValueAsString(request.getQuery()));
+//                return Mono.just(Boolean.TRUE);
                 return requestService.getSomething(request);
 //                return externalRequester.getExternalRequest(request);
             }
-            else
+            else {
+                log.info("In controller catch");
                 return Mono.error(Exception::new);
+            }
         }
         catch (Exception e) {
             log.info(e.getMessage());
