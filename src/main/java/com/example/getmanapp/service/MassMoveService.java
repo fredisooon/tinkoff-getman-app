@@ -29,7 +29,7 @@ public class MassMoveService {
 
 
     /**
-     * Должно работать, но нужно порешать с полями JSON у Request'a
+     * OK
      * @param list
      * @return
      */

@@ -1,5 +1,6 @@
 package com.example.getmanapp.service;
 
+import com.example.getmanapp.exceptions.exception.ResponseNotFoundException;
 import com.example.getmanapp.model.Response;
 import com.example.getmanapp.repository.ResponseRepository;
 import com.example.getmanapp.utils.mix.BooleanObject;
@@ -24,8 +25,9 @@ public class ResponseService {
         return responseRepository.findAll();
     }
 
-    public Mono<Response> getResponseById(Long id) {
-        return responseRepository.findById(id);
+    public Mono<Response> getResponseById(Long responseId) {
+        return responseRepository.findById(responseId)
+                .switchIfEmpty(Mono.error(new ResponseNotFoundException(responseId)));
     }
 
     public Mono<Void> deleteResponseById(Long id) {

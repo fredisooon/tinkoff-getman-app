@@ -18,8 +18,8 @@ public class ResponseController {
     private ResponseService responseService;
 
     @GetMapping("/{id}")
-    public Mono<Response> getResponseById(@PathVariable("id") Long id) {
-        return responseService.getResponseById(id);
+    public Mono<Response> getResponseById(@PathVariable("id") Long responseId) {
+        return responseService.getResponseById(responseId);
     }
 
 
@@ -28,11 +28,11 @@ public class ResponseController {
      * заглушка
      */
     @GetMapping("/{id}/await")
-    public Mono<BooleanObject> checkResponseAwait(@PathVariable("id") Long id,
+    public Mono<BooleanObject> checkResponseAwait(@PathVariable("id") Long responseId,
                                                   @RequestParam(value = "timeout",
                                                           required = false,
                                                           defaultValue = "60") String timeout) {
-        return responseService.checkResponseAwait(id, timeout);
+        return responseService.checkResponseAwait(responseId, timeout);
     }
 
 }

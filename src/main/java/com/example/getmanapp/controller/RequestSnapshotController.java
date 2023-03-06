@@ -11,6 +11,10 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "${v1API}/request_snapshot")
 public class RequestSnapshotController {
 
+    /**
+     * заглушка
+     * @return
+     */
     @GetMapping
     public Mono<Object> getRequestSnapshot() {
         return null;

@@ -1,19 +1,21 @@
 package com.example.getmanapp.service;
 
 import com.example.getmanapp.exceptions.exception.WorkspaceNotFoundException;
-import com.example.getmanapp.exceptions.exception.WorkspaceSavingException;
+import com.example.getmanapp.exceptions.exception.WorkspaceSaveException;
 import com.example.getmanapp.model.Workspace;
 import com.example.getmanapp.repository.RequestRepository;
 import com.example.getmanapp.repository.WorkspaceRepository;
-import com.example.getmanapp.utils.Id;
+import com.example.getmanapp.utils.ID;
 import com.example.getmanapp.utils.mix.BooleanObject;
 import com.example.getmanapp.utils.mix.MoveObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.MethodNotAllowedException;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -85,10 +87,10 @@ public class WorkspaceService {
      * @return ID instance
      */
     @Transactional
-    public Mono<Id> saveWorkspace(Workspace workspace) {
+    public Mono<ID> saveWorkspace(Workspace workspace) {
         return workspaceRepository.save(workspace)
-                .switchIfEmpty(Mono.error(new WorkspaceSavingException(workspace)))
-                .flatMap(e -> Mono.just(new Id(e.getId(), e.getWorkspace_fk_id())))
+                .switchIfEmpty(Mono.error(new WorkspaceSaveException(workspace)))
+                .flatMap(e -> Mono.just(new ID(e.getId(), e.getWorkspace_fk_id())))
                 .log();
     }
 
@@ -107,8 +109,8 @@ public class WorkspaceService {
                                 return workspaceRepository.delete(workspace)
                                         .thenReturn(new BooleanObject(Boolean.TRUE));
                             else
-                                return Mono.error(new MethodNotAllowedException(HttpMethod.DELETE,
-                                                    Arrays.asList(HttpMethod.values()))); // ?
+                                return Mono.error(new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED,
+                                                   "Method Not Allowed"));
                         }))
                 .switchIfEmpty(Mono.just(new BooleanObject(Boolean.FALSE,
                                             "Workspace not found for ID: " + workspaceId)));
