@@ -18,6 +18,7 @@ public class AdapterLayer {
         request.setHost(requestAdapter.getHost());
         request.setPort(requestAdapter.getPort());
         request.setPath(requestAdapter.getPath());
+        request.setWorkspace_id(0L);
         if (requestAdapter.getQuery() == null)
             request.setQuery(new Query());
         else

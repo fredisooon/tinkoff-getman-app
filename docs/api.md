@@ -99,7 +99,7 @@ Example:
 	"path": "",
 	"headers": null, // Headers object or null
 	"query": null, // Query object or null
-	"payload": null, // Payload object or null
+	"payload": null // Payload object or null
 }
 ```
 
@@ -110,7 +110,7 @@ Where:
 * `http_version` is HTTP protocol version, e.g. `0.9`, `1.0`, and so on.
 * `method` is HTTP [request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods),
 	e.g. `GET` or `POST`. (**must** be uppercase)
-* `scheme` is HTTP scheme, e.g. `http` or `https` (**must** be lowercase).
+* `scheme` is HTTP scheme, e.g. `http` or `https`. (**must** be lowercase)
 * `host` is request target host.
 * `port` is request target port.
 * `path` is request URL path.
@@ -155,7 +155,7 @@ Example:
 [
 	["query-1", "value"],
 	["same-name-query", "value_1"],
-	["same-name-query", "value_2"],
+	["same-name-query", "value_2"]
 ]
 ```
 
@@ -222,7 +222,7 @@ Example:
 ```json5
 {
 	"id": { "id": 1, "parent": null }, // ID<Response, ResponseSet?> object
-	"requestSnapshot": 1,
+	"request_snapshot": 1,
 	"executed_at": 0,
 	"closed_at": null,
 	"status": {
@@ -241,7 +241,7 @@ Where:
   object of response.
   * If response doesn't belong to [ResponseSet](#responseset) `parent` will be
     `null`.
-* `requestSnapshot` is an `int` ID of [RequestSnapshot](#requestsnapshot)
+* `request_snapshot` is an `int` ID of [RequestSnapshot](#requestsnapshot)
   object.
 * `executed_at` is UNIX timestamp in milliseconds when request begun to execute.
 * `closed_at` is UNIX timestamp in milliseconds when request closed connection
@@ -280,8 +280,8 @@ Example:
 	"id": { "id": 1, "parent": 0 }, // ID<Workspace, Workspace> object
 	"name": "Workspace name",
 	"description": "Workspace description",
-	"requests": [], // Array<Request>
-	"workspaces:": [] // Array<Workspace>
+	"requests": [], // Array<int>
+	"workspaces": [] // Array<int>
 }
 ```
 
@@ -291,10 +291,10 @@ Where:
   object of workspace.
 * `name` is a workspace name.
 * `description` is a workspace description.
-* `requests` is an `Array` of [`Request`](#request) objects within this
-  workspace.
-* `workspaces` is an `Array` of [`Workspace`](#workspace) objects within this
-  workspace.
+* `requests` is an `Array` of `int` IDs of [`Request`](#request) objects within
+  this workspace.
+* `workspaces` is an `Array` of `int` IDs of children [Workspace](#workspace)s
+  within this workspace.
 
 #### Special workspaces
 ----
@@ -637,7 +637,7 @@ Following request will move [`Workspace`](#workspace) `1` to
 	{
 		"workspace": -100,
 		"workspaces": [1,2],
-		"requests": [1],
+		"requests": [1]
 	},
 	{
 		"workspace": 0,

@@ -7,6 +7,6 @@
 
     <include file="create-workspace-table.xml" relativeToChangelogFile="true"/>
 
-<!--    <include file="" relativeToChangelogFile="true"/>-->
+    <include file="create-response-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

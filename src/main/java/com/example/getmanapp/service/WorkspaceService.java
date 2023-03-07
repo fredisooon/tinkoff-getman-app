@@ -1,114 +1,164 @@
 package com.example.getmanapp.service;
 
-import com.example.getmanapp.model.Request;
+import com.example.getmanapp.exceptions.exception.WorkspaceNotFoundException;
+import com.example.getmanapp.exceptions.exception.WorkspaceSaveException;
 import com.example.getmanapp.model.Workspace;
+import com.example.getmanapp.repository.RequestRepository;
 import com.example.getmanapp.repository.WorkspaceRepository;
-
-import com.example.getmanapp.utils.Id;
-import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactory;
+import com.example.getmanapp.utils.ID;
+import com.example.getmanapp.utils.mix.BooleanObject;
+import com.example.getmanapp.utils.mix.MoveObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import org.springframework.data.repository.core.support.RepositoryMethodInvocationListener;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.MethodNotAllowedException;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.Query.query;
-
 
 @Service
 @Slf4j
 public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
-
+    private final RequestRepository requestRepository;
     @Autowired
-    public WorkspaceService(WorkspaceRepository workspaceRepository) {
+    public WorkspaceService(WorkspaceRepository workspaceRepository, RequestRepository requestRepository) {
         this.workspaceRepository = workspaceRepository;
+        this.requestRepository = requestRepository;
     }
 
-    public Mono<Id> saveWorkspace(Workspace workspace, String fkId) {
-        log.info("Second step: " + workspace.toString() + " " + fkId);
-        Mono<Workspace> newWorkspace
-                = workspaceRepository.save(workspace.getName(), workspace.getDescription(), Long.parseLong(fkId));
+    /**
+     * OK
+     * param Long workspaceId
+     * @return Workspace instance
+     */
+    @Transactional(readOnly = true)
+    public Mono<Workspace> getWorkspaceById(Long workspaceId) {
+        Mono<Workspace> parentWorkspace =
+                workspaceRepository.findById(workspaceId)
+                        .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(workspaceId)));
+        Flux<Long> childrenWorkspaces =
+                workspaceRepository.getListOfWorkspacesIdByWorkspaceFkId(workspaceId);
+        Flux<Long> parentNestedRequests =
+                requestRepository.getRequestsIdByWorkspaceId(workspaceId);
 
-        log.info("third step: " + newWorkspace);
-
-        return newWorkspace.flatMap(e -> {
-            log.info("Fourth step: ");
-            Id id = new Id();
-            id.setId(e.getId());
-            id.setParent(e.getWorkspace_fk_id());
-
-            log.info(id.toString());
-            return Mono.just(id);
-        });
-
-//        return Mono.just(new Id()).flatMap(e -> newWorkspace.map(nw -> {
-//            log.info("Fourth step: ");
-//            e.setId(nw.getId());
-//            e.setParent(nw.getWorkspace_fk_id());
-//
-//            log.info(e.toString());
-//            return e;
-//        }));
+        return parentWorkspace.zipWith(parentNestedRequests.collectList())
+                .map(tuple -> {
+                    Workspace parent = tuple.getT1();
+                    List<Long> nestedRequests = tuple.getT2();
+                    parent.setRequests(nestedRequests);
+                    return parent;
+                }).flatMap(parent -> childrenWorkspaces.collectList().flatMap(cW -> {
+                    parent.setWorkspaces(cW);
+                    log.info(parent.toString());
+                    return Mono.just(parent);
+                })).log();
     }
 
-    public Flux<Workspace> getAllWorkspaces() {
-        return workspaceRepository.findAll();
+    /**
+     * OK
+     * @param workspaceId
+     * @param workspace
+     * @return Updated Workspace instance
+     */
+    @Transactional
+    public Mono<Workspace> updateWorkspaceById(Long workspaceId, Workspace workspace) {
+        if (workspace == null)
+            return Mono.error(new IllegalArgumentException("Workspace must not be null"));
+
+        return workspaceRepository.findById(workspaceId)
+                .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(workspaceId)))
+                .flatMap(e -> {
+                    e.setName(workspace.getName());
+                    e.setDescription(workspace.getDescription());
+                    return workspaceRepository.save(e).log();
+                });
     }
 
-    public Mono<Workspace> getWorkspaceById(Long id) {
-        return workspaceRepository.findById(id);
+    /**
+     * OK
+     * param Workspace workspace
+     * @return ID instance
+     */
+    @Transactional
+    public Mono<ID> saveWorkspace(Workspace workspace) {
+        return workspaceRepository.save(workspace)
+                .switchIfEmpty(Mono.error(new WorkspaceSaveException(workspace)))
+                .flatMap(e -> Mono.just(new ID(e.getId(), e.getWorkspace_fk_id())))
+                .log();
     }
 
-    public Mono<Workspace> updateWorkspaceById(Workspace workspace, Long id) {
-        Mono<Workspace> workspaceToUpdate = workspaceRepository.findById(id);
+    /**
+     * OK
+     * param Long workspaceId
+     * @return BooleanObject instance
+     */
+    @Transactional
+    public Mono<BooleanObject> deleteWorkspaceById(Long workspaceId) {
+        return workspaceRepository.findById(workspaceId)
+                .flatMap(workspace -> workspaceRepository.getWorkspaceByWorkspaceFkId(workspaceId)
+                        .collectList()
+                        .flatMap(workspaces -> {
+                            if (workspaces.isEmpty())
+                                return workspaceRepository.delete(workspace)
+                                        .thenReturn(new BooleanObject(Boolean.TRUE));
+                            else
+                                return Mono.error(new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED,
+                                                   "Method Not Allowed"));
+                        }))
+                .switchIfEmpty(Mono.just(new BooleanObject(Boolean.FALSE,
+                                            "Workspace not found for ID: " + workspaceId)));
+    }
+    /**
+     * OK
+     * param Long workspaceId
+     * @return BooleanOBject instance
+     */
+    @Transactional
+    public Mono<BooleanObject> deleteCascadeWorkspace(Long workspaceId) {
+        return workspaceRepository.findById(workspaceId)
+                .flatMap(workspace -> deleteNestedRequests(workspaceId)
+                        .then(deleteChildWorkspaces(workspaceId))
+                        .then(workspaceRepository.deleteById(workspaceId))
+                        .thenReturn(new BooleanObject(Boolean.TRUE)))
 
-        return workspaceToUpdate.map(e -> {
-            e.setName(workspace.getName());
-            e.setDescription(workspace.getDescription());
-            e.setWorkspaces(getChildrenWorkspaces(workspace));
-            return e;
-        });
+
+                .switchIfEmpty(Mono.just(new BooleanObject(Boolean.FALSE,
+                                            "Workspace not found for ID: " + workspaceId))).log();
+    }
+    private Mono<Void> deleteNestedRequests(Long workspaceId) {
+        return requestRepository.deleteAllByWorkspaceId(workspaceId).log();
+    }
+    private Mono<Void> deleteChildWorkspaces(Long workspaceId) {
+        return workspaceRepository.getWorkspaceByWorkspaceFkId(workspaceId)
+                .flatMap(childWorkspace -> deleteCascadeWorkspace(childWorkspace.getId()))
+                .then();
     }
 
-    public Mono<Void> deleteWorkspaceById(Long id) {
-        return workspaceRepository.deleteById(id);
-    }
+    /**
+     * OK
+     * @param id
+     * @param body
+     * @return BooleanObject instance
+     */
+    public Mono<BooleanObject> moveWorkspaceToWorkspace(Long id, MoveObject body) {
+        if (body == null)
+            return Mono.error(new IllegalArgumentException("Body must not be null"));
 
-    private List<Workspace> getChildrenWorkspaces(Workspace workspace) {
-        ConnectionFactory connectionFactory
-                = ConnectionFactories.get("r2dbc:postgresql://localhost:5432/postgres");
-
-        R2dbcEntityTemplate r2dbcEntityTemplate = new R2dbcEntityTemplate(connectionFactory);
-
-        Flux<Workspace> workspaces = r2dbcEntityTemplate.select(Workspace.class)
-                .from("workspace")
-                .matching(query(where("workspace_fk_id").is(workspace.getId()))).all();
-
-        List<Workspace> toList = workspaces.collectList().block();
-
-        return toList;
-    }
-
-    private List<Request> getRequests(Workspace workspace) {
-        ConnectionFactory connectionFactory
-                = ConnectionFactories.get("r2dbc:postgresql://localhost:5432/postgres");
-
-        R2dbcEntityTemplate r2dbcEntityTemplate = new R2dbcEntityTemplate(connectionFactory);
-
-        Flux<Request> requests = r2dbcEntityTemplate.select(Request.class)
-                .from("request")
-                .matching(query(where("workspace_id").is(workspace.getId()))).all();
-
-        List<Request> toList = requests.collectList().block();
-
-        return toList;
+        return workspaceRepository
+                .findById(id)
+                .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(id)))
+                .flatMap(workspace -> workspaceRepository.findById(body.getWorkspace())
+                                .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(body.getWorkspace())))
+                                .flatMap(storeWorkspace -> {
+                                        workspace.setWorkspace_fk_id(body.getWorkspace());
+                                        return workspaceRepository.save(workspace).thenReturn(new BooleanObject(Boolean.TRUE));
+                                }));
     }
 }

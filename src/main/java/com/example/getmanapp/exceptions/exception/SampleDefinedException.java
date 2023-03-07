@@ -1,4 +1,4 @@
-package com.example.getmanapp.exceptions;
+package com.example.getmanapp.exceptions.exception;
 
 public class SampleDefinedException extends RuntimeException{
     public SampleDefinedException(String message) {
