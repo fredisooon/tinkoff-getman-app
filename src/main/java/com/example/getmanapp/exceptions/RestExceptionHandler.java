@@ -53,4 +53,19 @@ public class RestExceptionHandler {
     public ErrorResponse handleResponseNotFoundException(ResponseNotFoundException ex) {
         return new ErrorResponse("response_not_found", ex.getMessage());
     }
+
+    @ExceptionHandler(RequestSnapshotSaveException.class)
+    @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
+    @ResponseBody
+    public ErrorResponse handleRequestSnapshotSaveException(RequestSnapshotSaveException ex) {
+        return new ErrorResponse("requestSnapshot_save_failed", ex.getMessage());
+    }
+
+
+    @ExceptionHandler(RequestSnapshotNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorResponse handleRequestSnapshotNotFoundException(RequestSnapshotNotFoundException ex) {
+        return new ErrorResponse("requestSnapshot_not_found", ex.getMessage());
+    }
 }

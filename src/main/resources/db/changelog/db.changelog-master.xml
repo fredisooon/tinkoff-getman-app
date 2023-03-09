@@ -9,4 +9,6 @@
 
     <include file="create-response-table.xml" relativeToChangelogFile="true"/>
 
+    <include file="create-request-snapshot-table.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>

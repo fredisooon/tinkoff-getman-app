@@ -1,0 +1,43 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="create_request-snapshot_table" author="yankov">
+        <createTable tableName="request_snapshot">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="http_version" type="VARCHAR(10)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="method" type="VARCHAR(10)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="scheme" type="VARCHAR(10)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="host" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="port" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="path" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="headers" type="json">
+                <constraints nullable="true"/>
+            </column>
+            <column name="query" type="json">
+                <constraints nullable="true"/>
+            </column>
+            <column name="payload" type="json">
+                <constraints nullable="true"/>
+            </column>
+            <column name="workspace_id" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,11 +1,10 @@
 package com.example.getmanapp.service;
 
-import com.example.getmanapp.exceptions.exception.RequestNotFoundException;
-import com.example.getmanapp.exceptions.exception.RequestSaveException;
-import com.example.getmanapp.exceptions.exception.ResponseSaveException;
-import com.example.getmanapp.exceptions.exception.WorkspaceNotFoundException;
+import com.example.getmanapp.exceptions.exception.*;
 import com.example.getmanapp.model.Request;
+import com.example.getmanapp.model.RequestSnapshot;
 import com.example.getmanapp.repository.RequestRepository;
+import com.example.getmanapp.repository.RequestSnapshotRepository;
 import com.example.getmanapp.repository.ResponseRepository;
 import com.example.getmanapp.repository.WorkspaceRepository;
 import com.example.getmanapp.utils.ID;
@@ -27,17 +26,19 @@ import reactor.core.publisher.Mono;
 @Service
 public class RequestService{
     private final RequestRepository requestRepository;
+    private final RequestSnapshotRepository requestSnapshotRepository;
     private final WorkspaceRepository workspaceRepository;
     private final ResponseRepository responseRepository;
     private final ExternalRequester externalRequester;
 
     @Autowired
     public RequestService(RequestRepository requestRepository,
-                          WorkspaceRepository workspaceRepository,
+                          RequestSnapshotRepository requestSnapshotRepository, WorkspaceRepository workspaceRepository,
                           ResponseRepository responseRepository,
                           ExternalRequester externalRequester) {
 
         this.requestRepository = requestRepository;
+        this.requestSnapshotRepository = requestSnapshotRepository;
         this.workspaceRepository = workspaceRepository;
         this.responseRepository = responseRepository;
         this.externalRequester = externalRequester;
@@ -165,10 +166,20 @@ public class RequestService{
 
         return requestRepository.findById(requestId)
                 .switchIfEmpty(Mono.error(new RequestNotFoundException(requestId)))
-                .flatMap(request -> externalRequester.getExternalRequest(request)
-                        .flatMap(response -> responseRepository.save(response)
-                                .switchIfEmpty(Mono.error(new ResponseSaveException(response)))
-                                .flatMap(savedResponse -> Mono.just(new ID(savedResponse.getId(), null)))
-                        ));
+                .flatMap(request -> {
+                    RequestSnapshot requestSnapshot = AdapterLayer.transferRequestSnapshotModel(request);
+
+                    return requestSnapshotRepository.save(requestSnapshot)
+                            .switchIfEmpty(Mono.error(new RequestSnapshotSaveException(requestSnapshot)))
+                            .flatMap(result -> externalRequester.getExternalRequest(request)
+                                    .flatMap(response -> {
+                                        response.setRequestSnapshot(requestSnapshot.getId());
+                                        return responseRepository.save(response)
+                                                .switchIfEmpty(Mono.error(new ResponseSaveException(response)))
+                                                        .flatMap(savedResponse -> Mono.just(new ID(savedResponse.getId(), null)));
+                                    })
+                            );
+                });
+
     }
 }
