@@ -1,6 +1,7 @@
 package com.example.getmanapp.utils.mix;
 
 import com.example.getmanapp.model.Request;
+import com.example.getmanapp.model.RequestSnapshot;
 import com.example.getmanapp.utils.Payload;
 import com.example.getmanapp.utils.Query;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +38,33 @@ public class AdapterLayer {
         }
 
         return request;
+    }
+
+    public static RequestSnapshot transferRequestSnapshotModel(Request requestAdapter) {
+        RequestSnapshot requestSnapshot = new RequestSnapshot();
+        requestSnapshot.setHttpVersion(requestAdapter.getHttpVersion());
+        requestSnapshot.setMethod(requestAdapter.getMethod());
+        requestSnapshot.setScheme(requestAdapter.getScheme());
+        requestSnapshot.setHost(requestAdapter.getHost());
+        requestSnapshot.setPort(requestAdapter.getPort());
+        requestSnapshot.setPath(requestAdapter.getPath());
+        requestSnapshot.setWorkspace_id(null);
+        if (requestAdapter.getQuery() == null)
+            requestSnapshot.setQuery(new Query());
+        else
+            requestSnapshot.setQuery(requestAdapter.getQuery());
+        if (requestAdapter.getHeaders() == null)
+            requestSnapshot.setHeaders(new HttpHeaders());
+        else
+            requestSnapshot.setHeaders(requestAdapter.getHeaders());
+
+        if (requestAdapter.getPayload() == null)
+            requestSnapshot.setPayload(new Payload());
+        else {
+            requestSnapshot.setPayload(requestAdapter.getPayload());
+        }
+
+        return requestSnapshot;
     }
 
     private static HttpHeaders fromNestedListToMap(List<List<String>> list) {
