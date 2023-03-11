@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
 @Service
 public class ResponseService {
 
@@ -35,9 +37,11 @@ public class ResponseService {
     }
 
     public Mono<BooleanObject> checkResponseAwait(Long id, String timeout) {
-        return responseRepository.
-                findById(id)
+        return responseRepository
+                .findById(id)
+                .timeout(Duration.ofSeconds(Long.parseLong(timeout)))
+                .switchIfEmpty(Mono.error(new ResponseNotFoundException(id)))
                 .thenReturn(new BooleanObject(Boolean.TRUE))
-                .defaultIfEmpty(new BooleanObject(Boolean.FALSE));
+                .onErrorResume(ex -> Mono.just(new BooleanObject(false, ex.getMessage())));
     }
 }
