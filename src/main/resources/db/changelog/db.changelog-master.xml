@@ -11,4 +11,6 @@
 
     <include file="create-request-snapshot-table.xml" relativeToChangelogFile="true"/>
 
+    <include file="insert-virtual-workspaces.xml" relativeToChangelogFile="true" />
+
 </databaseChangeLog>
