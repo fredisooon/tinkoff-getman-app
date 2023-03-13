@@ -23,10 +23,6 @@ public class ResponseController {
     }
 
 
-    /**
-     *
-     * заглушка
-     */
     @GetMapping("/{id}/await")
     public Mono<BooleanObject> checkResponseAwait(@PathVariable("id") Long responseId,
                                                   @RequestParam(value = "timeout",
