@@ -6,20 +6,19 @@ import com.example.getmanapp.model.Workspace;
 import com.example.getmanapp.repository.RequestRepository;
 import com.example.getmanapp.repository.WorkspaceRepository;
 import com.example.getmanapp.utils.ID;
+import com.example.getmanapp.utils.mix.AdapterLayer;
 import com.example.getmanapp.utils.mix.BooleanObject;
 import com.example.getmanapp.utils.mix.MoveObject;
+import com.example.getmanapp.utils.mix.ResponseWorkspace;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.MethodNotAllowedException;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -39,7 +38,7 @@ public class WorkspaceService {
      * @return Workspace instance
      */
     @Transactional(readOnly = true)
-    public Mono<Workspace> getWorkspaceById(Long workspaceId) {
+    public Mono<ResponseWorkspace> getWorkspaceById(Long workspaceId) {
         Mono<Workspace> parentWorkspace =
                 workspaceRepository.findById(workspaceId)
                         .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(workspaceId)));
@@ -57,8 +56,9 @@ public class WorkspaceService {
                 }).flatMap(parent -> childrenWorkspaces.collectList().flatMap(cW -> {
                     parent.setWorkspaces(cW);
                     log.info(parent.toString());
-                    return Mono.just(parent);
-                })).log();
+                    return Mono.just(AdapterLayer.convertToResponseWorkspace(parent));
+                }))
+                .log();
     }
 
     /**

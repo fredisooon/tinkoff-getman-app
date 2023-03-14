@@ -8,10 +8,7 @@ import com.example.getmanapp.repository.RequestSnapshotRepository;
 import com.example.getmanapp.repository.ResponseRepository;
 import com.example.getmanapp.repository.WorkspaceRepository;
 import com.example.getmanapp.utils.ID;
-import com.example.getmanapp.utils.mix.AdapterLayer;
-import com.example.getmanapp.utils.mix.BooleanObject;
-import com.example.getmanapp.utils.mix.MoveObject;
-import com.example.getmanapp.utils.mix.RequestAdapter;
+import com.example.getmanapp.utils.mix.*;
 import com.example.getmanapp.webclient.ExternalRequester;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +52,10 @@ public class RequestService{
      * @param id
      * @return Request instance
      */
-    public Mono<Request> getRequestById(Long id) {
+    public Mono<ResponseRequest> getRequestById(Long id) {
         return requestRepository.findById(id)
-                .switchIfEmpty(Mono.error(new RequestNotFoundException(id)));
+                .switchIfEmpty(Mono.error(new RequestNotFoundException(id)))
+                .flatMap(request -> Mono.just(AdapterLayer.convertToResponseRequest(request)));
     }
 
     /**
@@ -75,7 +73,7 @@ public class RequestService{
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new RequestNotFoundException(id)))
                 .flatMap(updatedRequest -> {
-                    updatedRequest.setHttpVersion(request.getHttpVersion());
+                    updatedRequest.setHttp_version(request.getHttp_version());
                     updatedRequest.setMethod(request.getMethod());
                     updatedRequest.setScheme(request.getScheme());
                     updatedRequest.setHost(request.getHost());
