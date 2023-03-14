@@ -5,6 +5,7 @@ import com.example.getmanapp.service.WorkspaceService;
 import com.example.getmanapp.utils.ID;
 import com.example.getmanapp.utils.mix.BooleanObject;
 import com.example.getmanapp.utils.mix.MoveObject;
+import com.example.getmanapp.utils.mix.ResponseWorkspace;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class WorkspaceController {
      * }
      */
     @GetMapping("/{id}")
-    public Mono<Workspace> getWorkspaceById(@PathVariable("id") Long id) {
+    public Mono<ResponseWorkspace> getWorkspaceById(@PathVariable("id") Long id) {
 
         return workspaceService.getWorkspaceById(id);
     }
