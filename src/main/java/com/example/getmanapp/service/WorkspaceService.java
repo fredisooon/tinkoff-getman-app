@@ -6,6 +6,7 @@ import com.example.getmanapp.model.Workspace;
 import com.example.getmanapp.repository.RequestRepository;
 import com.example.getmanapp.repository.WorkspaceRepository;
 import com.example.getmanapp.utils.ID;
+import com.example.getmanapp.utils.mix.AdapterLayer;
 import com.example.getmanapp.utils.mix.BooleanObject;
 import com.example.getmanapp.utils.mix.MoveObject;
 import com.example.getmanapp.utils.mix.ResponseWorkspace;
@@ -55,12 +56,7 @@ public class WorkspaceService {
                 }).flatMap(parent -> childrenWorkspaces.collectList().flatMap(cW -> {
                     parent.setWorkspaces(cW);
                     log.info(parent.toString());
-                    return Mono.just(new ResponseWorkspace(new ID(parent.getId(), parent.getWorkspace_fk_id()),
-                                                            parent.getName(),
-                                                            parent.getDescription(),
-                                                            parent.getWorkspace_fk_id(),
-                                                            parent.getRequests(),
-                                                            parent.getWorkspaces()));
+                    return Mono.just(AdapterLayer.convertToResponseWorkspace(parent));
                 }))
                 .log();
     }

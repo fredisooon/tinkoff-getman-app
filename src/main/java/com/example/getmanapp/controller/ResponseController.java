@@ -4,6 +4,7 @@ package com.example.getmanapp.controller;
 import com.example.getmanapp.model.Response;
 import com.example.getmanapp.service.ResponseService;
 import com.example.getmanapp.utils.mix.BooleanObject;
+import com.example.getmanapp.utils.mix.ResponseResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class ResponseController {
     private ResponseService responseService;
 
     @GetMapping("/{id}")
-    public Mono<Response> getResponseById(@PathVariable("id") Long responseId) {
+    public Mono<ResponseResponse> getResponseById(@PathVariable("id") Long responseId) {
         return responseService.getResponseById(responseId);
     }
 
