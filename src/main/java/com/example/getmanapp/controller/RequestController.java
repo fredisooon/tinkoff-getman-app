@@ -6,6 +6,7 @@ import com.example.getmanapp.service.RequestService;
 import com.example.getmanapp.utils.ID;
 import com.example.getmanapp.utils.mix.BooleanObject;
 import com.example.getmanapp.utils.mix.MoveObject;
+import com.example.getmanapp.utils.mix.ResponseRequest;
 import com.example.getmanapp.webclient.ExternalRequester;
 import com.example.getmanapp.utils.mix.RequestAdapter;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +72,7 @@ public class RequestController {
      * }
      */
     @GetMapping("/{id}")
-    public Mono<Request> getRequestById(@PathVariable("id") Long requestId) {
+    public Mono<ResponseRequest> getRequestById(@PathVariable("id") Long requestId) {
 
         return requestService.getRequestById(requestId);
     }

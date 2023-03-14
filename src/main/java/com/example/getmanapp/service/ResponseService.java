@@ -3,7 +3,9 @@ package com.example.getmanapp.service;
 import com.example.getmanapp.exceptions.exception.ResponseNotFoundException;
 import com.example.getmanapp.model.Response;
 import com.example.getmanapp.repository.ResponseRepository;
+import com.example.getmanapp.utils.mix.AdapterLayer;
 import com.example.getmanapp.utils.mix.BooleanObject;
+import com.example.getmanapp.utils.mix.ResponseResponse;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,9 +29,10 @@ public class ResponseService {
         return responseRepository.findAll();
     }
 
-    public Mono<Response> getResponseById(Long responseId) {
+    public Mono<ResponseResponse> getResponseById(Long responseId) {
         return responseRepository.findById(responseId)
-                .switchIfEmpty(Mono.error(new ResponseNotFoundException(responseId)));
+                .switchIfEmpty(Mono.error(new ResponseNotFoundException(responseId)))
+                .flatMap(response -> Mono.just(AdapterLayer.convertToResponseResponse(response)));
     }
 
     public Mono<Void> deleteResponseById(Long id) {

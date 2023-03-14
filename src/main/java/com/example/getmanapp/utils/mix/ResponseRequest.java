@@ -1,16 +1,20 @@
 package com.example.getmanapp.utils.mix;
 
+import com.example.getmanapp.utils.ID;
+import com.example.getmanapp.utils.Payload;
+import com.example.getmanapp.utils.Query;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
+import org.springframework.http.HttpHeaders;
 
-import java.util.ArrayList;
 import java.util.List;
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class RequestAdapter {
+public class ResponseRequest {
+    private ID id;
 
     private String http_version;
 
@@ -23,12 +27,12 @@ public class RequestAdapter {
     private Integer port;
 
     private String path;
-    @Nullable
+
     private List<List<String>> headers;
-    @Nullable
+
     private List<List<String>> query;
-    @Nullable
-    private List<List<String>> payload;
+
+    private Payload payload;
 
     private Long workspace_id;
 }
