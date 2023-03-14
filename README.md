@@ -1,6 +1,14 @@
 # tinkoff-getman-app
-MVP фичи до 8 марта.
-У нас все получится ! :)))
+
+# docker notes
+
+To run the app generate cert, or provide your own via overriding.
+
+```
+mkdir -p ./data/certs
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./data/certs/priv.key -out ./data/certs/fullchain.cer -subj "/C=XX/ST=Unknown/L=Unknown/O=Unknown/OU=Unknown/CN=localhost"
+openssl dhparam -out ./data/certs/dh.pem 8162
+```
 
 In order to Lombok start working without any problems you need to install a plugin in your IDE
 Do next actions:

@@ -1,37 +1,61 @@
 version: "2.1"
 
 services:
-  db:
-    image: postgres:13
-    container_name: db
-    ports:
-      - "5432:5432"
+  database:
+    image: postgres:13-alpine
+    container_name: getman-db
+    # ports:
+    #   - 5432:5432
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=${PG_DB:?database name is required}
+      - POSTGRES_USER=${PG_USER:?database user is required}
+      - POSTGRES_PASSWORD=${PG_PASS:?database password is required}
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      start_period: 10s
       interval: 10s
-      timeout: 5s
       retries: 5
+      timeout: 5s
 
   backend:
     build: .
-    depends_on:
-      db:
-        condition: service_healthy
+    container_name: getman-backend
     links:
-      - db
-    ports:
-      - "8086:8086"
+      - database
+    depends_on:
+      database:
+        condition: service_healthy
+    # ports:
+    #   - 8086:8086
     environment:
-      SPRING_R2DBC_URL: r2dbc:postgresql://db/
-      SPRING_R2DBC_NAME: postgres
-      SPRING_R2DBC_USERNAME: postgres
-      SPRING_R2DBC_PASSWORD: password
-      SPRING_LIQUIBASE_URL: jdbc:postgresql://db/postgres
-      SPRING_LIQUIBASE_USER: postgres
-      SPRING_LIQUIBASE_PASSWORD: password
+      SPRING_R2DBC_URL: r2dbc:postgresql://getman-db/
+      SPRING_R2DBC_NAME: ${PG_DB}
+      SPRING_R2DBC_USERNAME: ${PG_USER}
+      SPRING_R2DBC_PASSWORD: ${PG_PASS}
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://getman-db/${PG_DB}
+      SPRING_LIQUIBASE_USER: ${PG_USER}
+      SPRING_LIQUIBASE_PASSWORD: ${PG_PASS}
       SPRING_LIQUIBASE_ENABLED: true
       SPRING_LIQUIBASE_CHANGE-LOG: classpath:db/changelog/db.changelog-master.xml
+
+  webserver:
+    image: nginx:latest
+    container_name: getman-webserver
+    links:
+      - backend
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates/
+      - ./nginx/includes:/etc/nginx/includes/
+      - ./data/certs:/var/certs/
+      - ./data/app:/var/www/app/
+    ports:
+      - 9080:80
+      - 9443:443
+    environment:
+      NGINX_ENVSUBST_TEMPLATE_SUFFIX: ".conf"
+      # DOMAIN: getman.local
+      DOMAIN: localhost
+      BACKEND_URI: http://getman-backend:8086
