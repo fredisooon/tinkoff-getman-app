@@ -34,7 +34,7 @@ public class AdapterLayer {
         else
             request.setHeaders(fromNestedListToMap(requestAdapter.getHeaders()));
         if (requestAdapter.getPayload() == null)
-            request.setPayload(new Payload());
+            request.setPayload(null);
         else {
             if (!requestAdapter.getPayload().isEmpty())
                 request.setPayload(new Payload(requestAdapter.getPayload().get(0).get(1),
