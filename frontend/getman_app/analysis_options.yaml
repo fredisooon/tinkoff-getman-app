@@ -1,0 +1,7 @@
+include: package:zekfad_lints/untyped/flutter.yaml
+
+analyzer:
+  exclude:
+    - lib/screen/routes.gr.dart
+
+linter:

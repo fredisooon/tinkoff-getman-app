@@ -1,0 +1,27 @@
+targets:
+  $default:
+    # # Run only specified builders
+    # auto_apply_builders: false
+    builders:
+      source_gen:combining_builder:
+        options:
+          ignore_for_file:
+          - prefer_expression_function_bodies
+          - use_super_parameters
+          - require_trailing_commas
+      dart_mappable_builder|dart_mappable_builder:
+        enabled: true
+        generate_for:
+          - lib/data/**.dart
+        options:
+          caseStyle: snakeCase
+          generateMethods:
+            - decode
+            - encode
+            - copy
+            - stringify
+            - equals
+      riverpod_generator|riverpod_generator:
+        enabled: true
+        generate_for:
+          - lib/providers/**.dart
