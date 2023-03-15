@@ -11,6 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Query {
-
-    private List<List<String>> queries = new ArrayList<>();
+    private List<List<String>> query = new ArrayList<>();
 }

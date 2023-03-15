@@ -96,17 +96,12 @@ public class RequestService{
         if (!updated.getPath().equals(data.getPath()) && data.getPath() != null)
             updated.setPath(data.getPath());
 
-
-        assert updated.getHeaders() != null;
-        if (!updated.getHeaders().equals(data.getHeaders()) && data.getHeaders() != null)
-            updated.setHeaders(data.getHeaders());
-
-
-
-       updated.setQuery(data.getQuery());
-       updated.setPayload(data.getPayload());
-
-
+        // if(updated.getHeaders() == null)
+        // assert updated.getHeaders() != null;
+        // if (!updated.getHeaders().equals(data.getHeaders()) && data.getHeaders() != null)
+        updated.setHeaders(data.getHeaders());
+        updated.setQuery(data.getQuery());
+        updated.setPayload(data.getPayload());
 
         return updated;
     }

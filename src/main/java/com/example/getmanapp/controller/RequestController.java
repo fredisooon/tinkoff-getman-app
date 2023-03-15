@@ -1,7 +1,6 @@
 package com.example.getmanapp.controller;
 
 import com.example.getmanapp.config.WebClientConfiguration;
-import com.example.getmanapp.model.Request;
 import com.example.getmanapp.service.RequestService;
 import com.example.getmanapp.utils.ID;
 import com.example.getmanapp.utils.mix.BooleanObject;

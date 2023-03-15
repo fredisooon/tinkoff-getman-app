@@ -2,9 +2,12 @@ package com.example.getmanapp.model;
 
 import com.example.getmanapp.utils.Payload;
 import com.example.getmanapp.utils.Query;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import org.springframework.lang.Nullable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +21,7 @@ public class RequestSnapshot {
     @Id
     private Long id;
 
-    private String httpVersion;
+    private String http_version;
 
     private String method;
 
@@ -30,11 +33,12 @@ public class RequestSnapshot {
 
     private String path;
 
+    @Nullable
     private HttpHeaders headers;
 
+    @Nullable
     private Query query;
 
+    @Nullable
     private Payload payload;
-
-    private Long workspace_id;
 }

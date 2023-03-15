@@ -5,7 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 
-import java.util.ArrayList;
+import com.example.getmanapp.utils.Payload;
+
 import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +29,7 @@ public class RequestAdapter {
     @Nullable
     private List<List<String>> query;
     @Nullable
-    private List<List<String>> payload;
+    private Payload payload;
 
     private Long workspace_id;
 }

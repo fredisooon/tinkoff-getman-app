@@ -10,6 +10,8 @@ import com.example.getmanapp.utils.Query;
 import org.springframework.http.HttpHeaders;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,48 +27,36 @@ public class AdapterLayer {
         request.setPort(requestAdapter.getPort());
         request.setPath(requestAdapter.getPath());
         request.setWorkspace_id(0L);
-        if (requestAdapter.getQuery() == null || requestAdapter.getQuery().isEmpty())
-            request.setQuery(new Query());
+
+        if(requestAdapter.getQuery() == null)
+            request.setQuery(null);
         else
             request.setQuery(new Query(requestAdapter.getQuery()));
-        if (requestAdapter.getHeaders() == null || requestAdapter.getHeaders().isEmpty())
-            request.setHeaders(new HttpHeaders());
+
+        if(requestAdapter.getHeaders() == null)
+            request.setHeaders(null);
         else
             request.setHeaders(fromNestedListToMap(requestAdapter.getHeaders()));
-        if (requestAdapter.getPayload() == null)
+        // Can't be bothered
+        if (requestAdapter.getPayload() != null && requestAdapter.getPayload().getData().isEmpty())
             request.setPayload(null);
-        else {
-            if (!requestAdapter.getPayload().isEmpty())
-                request.setPayload(new Payload(requestAdapter.getPayload().get(0).get(1),
-                        requestAdapter.getPayload().get(1).get(1)));
-        }
+        else
+            request.setPayload(requestAdapter.getPayload());
 
         return request;
     }
 
     public static RequestSnapshot transferRequestSnapshotModel(Request requestAdapter) {
         RequestSnapshot requestSnapshot = new RequestSnapshot();
-        requestSnapshot.setHttpVersion(requestAdapter.getHttp_version());
+        requestSnapshot.setHttp_version(requestAdapter.getHttp_version());
         requestSnapshot.setMethod(requestAdapter.getMethod());
         requestSnapshot.setScheme(requestAdapter.getScheme());
         requestSnapshot.setHost(requestAdapter.getHost());
         requestSnapshot.setPort(requestAdapter.getPort());
         requestSnapshot.setPath(requestAdapter.getPath());
-        requestSnapshot.setWorkspace_id(null);
-        if (requestAdapter.getQuery() == null)
-            requestSnapshot.setQuery(new Query());
-        else
-            requestSnapshot.setQuery(requestAdapter.getQuery());
-        if (requestAdapter.getHeaders() == null)
-            requestSnapshot.setHeaders(new HttpHeaders());
-        else
-            requestSnapshot.setHeaders(requestAdapter.getHeaders());
-
-        if (requestAdapter.getPayload() == null)
-            requestSnapshot.setPayload(new Payload());
-        else {
-            requestSnapshot.setPayload(requestAdapter.getPayload());
-        }
+        requestSnapshot.setQuery(requestAdapter.getQuery());
+        requestSnapshot.setHeaders(requestAdapter.getHeaders());
+        requestSnapshot.setPayload(requestAdapter.getPayload());
 
         return requestSnapshot;
     }
@@ -92,14 +82,11 @@ public class AdapterLayer {
         return new ResponseWorkspace(new ID(w.getId(), w.getWorkspace_fk_id()),
                                         w.getName(),
                                         w.getDescription(),
-                                        w.getWorkspace_fk_id(),
                                         w.getRequests(),
                                         w.getWorkspaces());
     }
 
     public static ResponseRequest convertToResponseRequest(Request r) {
-
-
         return new ResponseRequest(new ID(r.getId(), r.getWorkspace_id()),
                 r.getHttp_version(),
                 r.getMethod(),
@@ -108,7 +95,7 @@ public class AdapterLayer {
                 r.getPort(),
                 r.getPath(),
                 multiValueMapToList(r.getHeaders()),
-                Objects.requireNonNull(r.getQuery()).getQueries(),
+                (r.getQuery() == null) ? List.of() : r.getQuery().getQuery(),
                 r.getPayload(),
                 r.getWorkspace_id());
     }

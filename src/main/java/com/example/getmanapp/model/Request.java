@@ -32,10 +32,13 @@ public class Request {
     private Integer port;
 
     private String path;
+
     @Nullable
     private HttpHeaders headers;
+
     @Nullable
     private Query query;
+
     @Nullable
     private Payload payload;
 

@@ -2,12 +2,9 @@ package com.example.getmanapp.utils.mix;
 
 import com.example.getmanapp.utils.ID;
 import com.example.getmanapp.utils.Payload;
-import com.example.getmanapp.utils.Query;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpHeaders;
-
 import java.util.List;
 
 @Data

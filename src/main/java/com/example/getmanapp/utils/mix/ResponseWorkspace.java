@@ -15,7 +15,6 @@ public class ResponseWorkspace {
     private ID id;
     private String name;
     private String description;
-    private Long workspace_fk_id;
     private List<Long> requests;
     private List<Long> workspaces;
 }
