@@ -15,7 +15,7 @@ services:
       - POSTGRES_PASSWORD=${PG_PASS:?database password is required}
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
-      start_period: 10s
+      start_period: 1s
       interval: 10s
       retries: 5
       timeout: 5s
@@ -28,6 +28,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
+
     # ports:
     #   - 8086:8086
     environment:
@@ -46,14 +47,22 @@ services:
     container_name: getman-webserver
     links:
       - backend
+    depends_on:
+      backend:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD-SHELL", "service nginx status || exit 1" ]
+      interval: 10s
+      retries: 2
+      timeout: 5s
     volumes:
       - ./nginx/templates:/etc/nginx/templates/
       - ./nginx/includes:/etc/nginx/includes/
       - ./data/certs:/var/certs/
       - ./data/app:/var/www/app/
-    ports:
-      - 9080:80
-      - 9443:443
+    # ports:
+    #   - 9080:80
+    #   - 9443:443
     environment:
       NGINX_ENVSUBST_TEMPLATE_SUFFIX: ".conf"
       # DOMAIN: getman.local
