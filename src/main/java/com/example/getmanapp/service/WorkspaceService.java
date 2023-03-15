@@ -26,6 +26,7 @@ import java.util.List;
 public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final RequestRepository requestRepository;
+
     @Autowired
     public WorkspaceService(WorkspaceRepository workspaceRepository, RequestRepository requestRepository) {
         this.workspaceRepository = workspaceRepository;
@@ -35,17 +36,15 @@ public class WorkspaceService {
     /**
      * OK
      * param Long workspaceId
+     * 
      * @return Workspace instance
      */
     @Transactional(readOnly = true)
     public Mono<ResponseWorkspace> getWorkspaceById(Long workspaceId) {
-        Mono<Workspace> parentWorkspace =
-                workspaceRepository.findById(workspaceId)
-                        .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(workspaceId)));
-        Flux<Long> childrenWorkspaces =
-                workspaceRepository.getListOfWorkspacesIdByWorkspaceFkId(workspaceId);
-        Flux<Long> parentNestedRequests =
-                requestRepository.getRequestsIdByWorkspaceId(workspaceId);
+        Mono<Workspace> parentWorkspace = workspaceRepository.findById(workspaceId)
+                .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(workspaceId)));
+        Flux<Long> childrenWorkspaces = workspaceRepository.getListOfWorkspacesIdByWorkspaceFkId(workspaceId);
+        Flux<Long> parentNestedRequests = requestRepository.getRequestsIdByWorkspaceId(workspaceId);
 
         return parentWorkspace.zipWith(parentNestedRequests.collectList())
                 .map(tuple -> {
@@ -63,6 +62,7 @@ public class WorkspaceService {
 
     /**
      * OK
+     * 
      * @param workspaceId
      * @param workspace
      * @return Updated Workspace instance
@@ -84,6 +84,7 @@ public class WorkspaceService {
     /**
      * OK
      * param Workspace workspace
+     * 
      * @return ID instance
      */
     @Transactional
@@ -97,10 +98,14 @@ public class WorkspaceService {
     /**
      * OK
      * param Long workspaceId
+     * 
      * @return BooleanObject instance
      */
     @Transactional
     public Mono<BooleanObject> deleteWorkspaceById(Long workspaceId) {
+        if (workspaceId == 0 || workspaceId == -100)
+            return Mono.error(new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED,
+                    "Method Not Allowed"));
         return workspaceRepository.findById(workspaceId)
                 .flatMap(workspace -> workspaceRepository.getWorkspaceByWorkspaceFkId(workspaceId)
                         .collectList()
@@ -110,14 +115,16 @@ public class WorkspaceService {
                                         .thenReturn(new BooleanObject(Boolean.TRUE));
                             else
                                 return Mono.error(new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED,
-                                                   "Method Not Allowed"));
+                                        "Method Not Allowed"));
                         }))
                 .switchIfEmpty(Mono.just(new BooleanObject(Boolean.FALSE,
-                                            "Workspace not found for ID: " + workspaceId)));
+                        "Workspace not found for ID: " + workspaceId)));
     }
+
     /**
      * OK
      * param Long workspaceId
+     * 
      * @return BooleanOBject instance
      */
     @Transactional
@@ -128,13 +135,15 @@ public class WorkspaceService {
                         .then(workspaceRepository.deleteById(workspaceId))
                         .thenReturn(new BooleanObject(Boolean.TRUE)))
 
-
                 .switchIfEmpty(Mono.just(new BooleanObject(Boolean.FALSE,
-                                            "Workspace not found for ID: " + workspaceId))).log();
+                        "Workspace not found for ID: " + workspaceId)))
+                .log();
     }
+
     private Mono<Void> deleteNestedRequests(Long workspaceId) {
         return requestRepository.deleteAllByWorkspaceId(workspaceId).log();
     }
+
     private Mono<Void> deleteChildWorkspaces(Long workspaceId) {
         return workspaceRepository.getWorkspaceByWorkspaceFkId(workspaceId)
                 .flatMap(childWorkspace -> deleteCascadeWorkspace(childWorkspace.getId()))
@@ -143,6 +152,7 @@ public class WorkspaceService {
 
     /**
      * OK
+     * 
      * @param id
      * @param body
      * @return BooleanObject instance
@@ -155,10 +165,10 @@ public class WorkspaceService {
                 .findById(id)
                 .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(id)))
                 .flatMap(workspace -> workspaceRepository.findById(body.getWorkspace())
-                                .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(body.getWorkspace())))
-                                .flatMap(storeWorkspace -> {
-                                        workspace.setWorkspace_fk_id(body.getWorkspace());
-                                        return workspaceRepository.save(workspace).thenReturn(new BooleanObject(Boolean.TRUE));
-                                }));
+                        .switchIfEmpty(Mono.error(new WorkspaceNotFoundException(body.getWorkspace())))
+                        .flatMap(storeWorkspace -> {
+                            workspace.setWorkspace_fk_id(body.getWorkspace());
+                            return workspaceRepository.save(workspace).thenReturn(new BooleanObject(Boolean.TRUE));
+                        }));
     }
 }

@@ -46,6 +46,7 @@ public class ExternalRequester {
                 return defaultWebClient
                         .method(requestMethod)
                         .uri(fullURI)
+                        .headers(headers -> headers.addAll(request.getHeaders()))
                         .exchangeToMono(this::getFilledResponse);
             } catch (WebClientRequestException e) {
                 return Mono.error(new SampleDefinedException(e.getMessage()));
@@ -53,12 +54,13 @@ public class ExternalRequester {
         } else if (Constants.HTTP_METHODS_HAVING_BODY.contains(HttpMethod.valueOf(request.getMethod()))) {
             try {
                 var payload = request.getPayload();
-                return defaultWebClient.method(requestMethod)
+                return defaultWebClient
+                        .method(requestMethod)
                         .uri(fullURI)
                         .headers(headers -> headers.addAll(request.getHeaders()))
                         .contentType(MediaType.TEXT_PLAIN)
                         .body(BodyInserters.fromValue(
-                                payload == null ? new String() : payload.getDecodedData()))
+                                payload == null ? new String() : payload.getData() == null ? new String() : new String(Base64.getDecoder().decode(payload.getData()))))
                         .exchangeToMono(this::getFilledResponse);
             } catch (WebClientException e) {
                 return Mono.error(new SampleDefinedException(e.getMessage()));

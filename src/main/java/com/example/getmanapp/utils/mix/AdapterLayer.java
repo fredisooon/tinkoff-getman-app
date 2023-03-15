@@ -56,7 +56,11 @@ public class AdapterLayer {
         requestSnapshot.setPath(requestAdapter.getPath());
         requestSnapshot.setQuery(requestAdapter.getQuery());
         requestSnapshot.setHeaders(requestAdapter.getHeaders());
-        requestSnapshot.setPayload(requestAdapter.getPayload());
+        var payload = requestAdapter.getPayload();
+        if(payload == null || payload.getData() == null || payload.getType() == null)
+            requestSnapshot.setPayload(null);
+        else
+            requestSnapshot.setPayload(payload);
 
         return requestSnapshot;
     }
