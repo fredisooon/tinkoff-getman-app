@@ -1,5 +1,6 @@
 package com.example.getmanapp.webclient;
 
+import ch.qos.logback.core.util.ContentTypeUtil;
 import com.example.getmanapp.config.WebClientConfiguration;
 import com.example.getmanapp.exceptions.exception.SampleDefinedException;
 import com.example.getmanapp.model.Request;
@@ -95,8 +96,10 @@ public class ExternalRequester {
     private Payload getFilledPayload(ClientResponse clientResponse, String body) {
         Payload payload = new Payload();
         payload.setData(body);
-        payload.setType(Objects.requireNonNull(clientResponse.headers().asHttpHeaders().getContentType()).toString());
+//        payload.setType(Objects.requireNonNull(clientResponse.headers().asHttpHeaders().getContentType()).toString());
+        payload.setType("plain");
         return payload;
+
     }
 
     public static String getFullURI (Request request){

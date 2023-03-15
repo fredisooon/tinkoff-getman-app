@@ -65,27 +65,50 @@ public class RequestService{
      * @return updated Request instance
      */
     @Transactional
-    public Mono<Request> updateRequestById(Long id, RequestAdapter body) {
+    public Mono<ResponseRequest> updateRequestById(Long id, RequestAdapter body) {
         if (body == null)
             return Mono.error(new IllegalArgumentException("Request must not be null"));
 
         Request request = AdapterLayer.transferRequestModel(body);
         return requestRepository.findById(id)
                 .switchIfEmpty(Mono.error(new RequestNotFoundException(id)))
-                .flatMap(updatedRequest -> {
-                    updatedRequest.setHttp_version(request.getHttp_version());
-                    updatedRequest.setMethod(request.getMethod());
-                    updatedRequest.setScheme(request.getScheme());
-                    updatedRequest.setHost(request.getHost());
-                    updatedRequest.setPort(request.getPort());
-                    updatedRequest.setPath(request.getPath());
-                    updatedRequest.setHeaders(request.getHeaders());
-                    updatedRequest.setQuery(request.getQuery());
-                    updatedRequest.setPayload(request.getPayload());
+                .flatMap(updatedRequest -> requestRepository.save(updateRequest(updatedRequest, request))
+                        .flatMap(savedRequest -> Mono.just(AdapterLayer.convertToResponseRequest(savedRequest)))
+                        .log());
+    }
 
-                    return requestRepository.save(updatedRequest)
-                            .log();
-                });
+    private Request updateRequest(Request updated, Request data) {
+        if (!updated.getHttp_version().equals(data.getHttp_version()) && data.getHttp_version() != null)
+            updated.setHttp_version(data.getHttp_version());
+
+        if (!updated.getMethod().equals(data.getMethod()) && data.getMethod() != null)
+            updated.setMethod(data.getMethod());
+
+        if (!updated.getScheme().equals(data.getScheme()) && data.getScheme() != null)
+            updated.setScheme(data.getScheme());
+
+        if (!updated.getHost().equals(data.getHost()) && data.getHost() != null)
+            updated.setHost(data.getHost());
+
+        if (!updated.getPort().equals(data.getPort()) && data.getPort() != null)
+            updated.setPort(data.getPort());
+
+        if (!updated.getPath().equals(data.getPath()) && data.getPath() != null)
+            updated.setPath(data.getPath());
+
+
+        assert updated.getHeaders() != null;
+        if (!updated.getHeaders().equals(data.getHeaders()) && data.getHeaders() != null)
+            updated.setHeaders(data.getHeaders());
+
+
+
+       updated.setQuery(data.getQuery());
+       updated.setPayload(data.getPayload());
+
+
+
+        return updated;
     }
 
     /**

@@ -86,7 +86,7 @@ public class RequestController {
      * @return updated Request instance
      */
     @PutMapping("/{id}")
-    public Mono<Request> updateRequest(@PathVariable("id") Long requestId,
+    public Mono<ResponseRequest> updateRequest(@PathVariable("id") Long requestId,
                                        @RequestBody RequestAdapter body) {
         return requestService.updateRequestById(requestId, body);
     }
